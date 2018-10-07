@@ -7,12 +7,10 @@ import (
 	"fmt"
 )
 
-type QueryScanner interface {
-	Scanner(ctx context.Context, rows *sql.Rows) (err error)
-	OnRowError(err error) (breakOff bool)
-}
 
-func Query(ctx context.Context, query string, scanner QueryScanner, args ...interface{}) (err error) {
+type QueryScanRangeFn func(ctx context.Context, rows *sql.Rows, rowErr error) (err error)
+
+func Query(ctx context.Context, query string, fn QueryScanRangeFn, args ...interface{}) (err error) {
 	if ctx == nil {
 		err = errors.New("dalc-> query failed, context is empty")
 		return
@@ -21,8 +19,8 @@ func Query(ctx context.Context, query string, scanner QueryScanner, args ...inte
 		err = errors.New("dalc-> query failed, query is empty")
 		return
 	}
-	if scanner == nil {
-		err = errors.New("dalc-> query failed, scanner is empty")
+	if fn == nil {
+		err = errors.New("dalc-> query failed, scan function is empty")
 		return
 	}
 	stmt, prepareErr := prepare(ctx).PrepareContext(ctx, query)
@@ -50,13 +48,7 @@ func Query(ctx context.Context, query string, scanner QueryScanner, args ...inte
 		}
 	}()
 	for rows.Next() {
-		if rowErr := rows.Err(); rowErr != nil {
-			if breakOff := scanner.OnRowError(rowErr); breakOff {
-				err = rowErr
-				return err
-			}
-		}
-		scanErr := scanner.Scanner(ctx, rows)
+		scanErr := fn(ctx, rows, rows.Err())
 		if scanErr != nil {
 			err = scanErr
 			return

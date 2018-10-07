@@ -8,8 +8,7 @@ import (
 )
 
 type Executable interface {
-	Exec(stmt *sql.Stmt) (result sql.Result, err error)
-	OnFailed(err error)
+	Exec(ctx context.Context, stmt *sql.Stmt) (result sql.Result, err error)
 }
 
 func Execute(ctx context.Context, query string, executables ...Executable) (affected int64, err error) {
@@ -38,20 +37,18 @@ func Execute(ctx context.Context, query string, executables ...Executable) (affe
 		}
 	}()
 	for _, executable := range executables {
-		result, execErr := executable.Exec(stmt)
+		result, execErr := executable.Exec(ctx, stmt)
 		if execErr != nil {
 			err = execErr
 			return
 		}
 		affectedRows, affectedErr := result.RowsAffected()
 		if affectedErr != nil {
-			executable.OnFailed(affectedErr)
-			err = fmt.Errorf("dalc-> execute failed, get result's affected failed. reason: %v", affectedErr)
+			err = fmt.Errorf("dalc-> execute failed, get result's affected failed. reason: %v, executable: %v", affectedErr, executable)
 			return
 		}
 		if affectedRows == 0 {
-			executable.OnFailed(errors.New("execute failed, affected nothing"))
-			err = errors.New("dalc-> execute failed, affected nothing")
+			err = fmt.Errorf("dalc-> execute failed, affected nothing, executable: %v", executables)
 			return
 		}
 		affected = affected + affectedRows
