@@ -22,7 +22,7 @@ func Execute(ctx context.Context, query string, executables ...Executable) (affe
 		return
 	}
 	if executables == nil || len(executables) == 0 {
-		err = errors.New("dalc-> execute failed, executables is empty")
+		err = errors.New("dalc-> execute failed, executables are empty")
 		return
 	}
 	stmt, prepareErr := prepare(ctx).PrepareContext(ctx, query)
