@@ -6,7 +6,7 @@ Database access common layer for go.
 - Simple.
 - No-reflect cost.
 - Using callback function to decrease range times.
-- expandability.
+- Expandability.
 - It is more convenient to use with dalg.
 
 ## Usage
