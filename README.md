@@ -25,12 +25,12 @@ type SomeTableRow struct {
 func Insert(ctx context.Context, rows... SomeTableInsert) (affected int64, err error) {
 
 	affected, err = dalc.Execute(ctx, insertSql, 
-		funcctx context.Context, stmt *sql.Stmt, row interface{}) (result sql.Result, err error) {
-		someTableRow, ok := row.(*SomeTableRow)
-		if !ok {
-			// 
-		}
-		result, err = stmt.ExecContext(ctx, someTableRow.Fields...)
+		func(ctx context.Context, stmt *sql.Stmt, row interface{}) (result sql.Result, err error) {
+		    someTableRow, ok := row.(*SomeTableRow)
+		    if !ok {
+		    	// 
+		    }
+		    result, err = stmt.ExecContext(ctx, someTableRow.Fields...)
 	}, rows...)
 
 	// other logic code
