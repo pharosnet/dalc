@@ -24,7 +24,7 @@ type SomeTableRow struct {
 // ctx := dal.WithPreparer(parentCtx, tx)
 func Insert(ctx context.Context, rows... SomeTableInsert) (affected int64, err error) {
 
-	affected, err := dalc.Execute(ctx, insertSql, 
+	affected, err = dalc.Execute(ctx, insertSql, 
 		funcctx context.Context, stmt *sql.Stmt, row interface{}) (result sql.Result, err error) {
 		someTableRow, ok := row.(*SomeTableRow)
 		if !ok {
