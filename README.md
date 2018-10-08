@@ -31,6 +31,7 @@ func Insert(ctx context.Context, rows... SomeTableInsert) (affected int64, err e
 		    	// 
 		    }
 		    result, err = stmt.ExecContext(ctx, someTableRow.Fields...)
+		    return
 	}, rows...)
 
 	// other logic code
@@ -50,7 +51,7 @@ func UseList() {
 			// rows -> SomeTableRow -> someView
 
 			// someViews append someView
-
+            return
 	}, args...)
 
 	// ...
