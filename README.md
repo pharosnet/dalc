@@ -17,6 +17,8 @@ Database access common layer for go.
 type SomeTableRow struct {
 
     // Fields mapped database columns
+    // when using dalc.Scan(), then add col tag 
+    Id string `col:"id"`
 
 }
 
@@ -48,7 +50,7 @@ func UseList() {
 
 			// check rowErr
 
-			// rows -> SomeTableRow -> someView
+			// rows -> SomeTableRow -> someView or use dalc.Scan(rows, &view)
 
 			// someViews append someView
             return
