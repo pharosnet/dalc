@@ -93,6 +93,7 @@ func Scan(rows *sql.Rows, v interface{}) (err error) {
 		}
 		rowFieldMapping := &rowField{
 			fieldIdx:  i,
+			colIdx:    -1,
 			tag:       tag,
 			fieldType: field.Type,
 		}
@@ -116,6 +117,9 @@ func Scan(rows *sql.Rows, v interface{}) (err error) {
 	}
 
 	for _, rowFieldMapping := range rowFieldMappings {
+		if rowFieldMapping.colIdx < 0 {
+			continue
+		}
 		cv := reflect.Indirect(reflect.ValueOf(columns[rowFieldMapping.colIdx]))
 		reflect.Indirect(rv.Field(rowFieldMapping.fieldIdx)).Set(cv.Elem())
 	}
