@@ -259,7 +259,7 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 			table.FullName = commons.NormalizeName(fullTableName)
 			table.Schema, table.Name = commons.SplitFullName(fullTableName)
 			if table.GoName == "" {
-				table.GoName = commons.SnakeToCamel(table.Name)
+				table.GoName = commons.SnakeToCamel(strings.ToLower(table.Name))
 			}
 			lastWord := words[len(words)-1]
 			if lastWord == "(" {
