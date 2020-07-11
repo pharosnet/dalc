@@ -20,5 +20,5 @@ type QueryResult struct {
 
 type QueryResultField struct {
 	Name string
-	Type string
+	Type *GoType
 }

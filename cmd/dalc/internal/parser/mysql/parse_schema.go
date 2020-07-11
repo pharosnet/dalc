@@ -204,11 +204,12 @@ func parseMySQLSchema(lines *commons.Lines) (schema string, err error) {
 }
 
 func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
-	structName := ""
+	goName := ""
 	table = &entry.Table{
 		FullName: "",
 		Schema:   "",
 		Name:     "",
+		GoName:   "",
 		Columns:  make([]*entry.Column, 0, 1),
 	}
 	columnsBegin := false
@@ -219,16 +220,17 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 		lineUpper := strings.ToUpper(line)
 
 		// comments
-		if structName == "" {
+		if goName == "" {
 			if strings.Index(lineUpper, "--") >= 0 {
 				words := lines.CurrentLineWords()
 				for i, word := range words {
 					if strings.ToUpper(word) == "NAME:" {
-						structName = words[i+1]
+						goName = words[i+1]
 						break
 					}
 				}
-				if structName != "" {
+				table.GoName = goName
+				if goName != "" {
 					continue
 				}
 			}
@@ -253,11 +255,12 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 				err = fmt.Errorf("read table name failed in %s", line)
 				return
 			}
-			if structName == "" {
-				err = fmt.Errorf("table %s has no defined struct name, please use -- name: {struct name}", fullTableName)
-			}
+
 			table.FullName = commons.NormalizeName(fullTableName)
 			table.Schema, table.Name = commons.SplitFullName(fullTableName)
+			if table.GoName == "" {
+				table.GoName = commons.SnakeToCamel(table.Name)
+			}
 			lastWord := words[len(words)-1]
 			if lastWord == "(" {
 				columnsBegin = true
@@ -307,6 +310,13 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 			if defaultKeyIdx > 0 {
 				defaultValue = commons.NormalizeUpperValue(words[defaultKeyIdx+1])
 			}
+			columnGoName := ""
+			columnGoNameIdx := commons.WordsIndex(words, "NAME:")
+			if columnGoNameIdx > 0 {
+				columnGoName = commons.SnakeToCamel(words[columnGoNameIdx+1])
+			} else {
+				columnGoName = commons.SnakeToCamel(strings.ToLower(columnName))
+			}
 			var goType *entry.GoType
 			refTypeKeyIdx := commons.WordsIndex(words, "REF:")
 			if refTypeKeyIdx > 0 {
@@ -325,6 +335,7 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 			column := &entry.Column{
 				Name:         columnName,
 				Type:         columnType,
+				GoName:       columnGoName,
 				GoType:       goType,
 				DefaultValue: defaultValue,
 			}

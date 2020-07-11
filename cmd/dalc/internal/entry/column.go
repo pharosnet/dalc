@@ -35,6 +35,7 @@ func (ct ColumnType) GoType() (goType *GoType, err error) {
 type Column struct {
 	Name         string
 	Type         ColumnType
+	GoName       string
 	GoType       *GoType
 	DefaultValue string
 }
