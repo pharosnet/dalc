@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// todo remove this file
 func NowTime() *NullTime {
 	return &NullTime{time.Now(), true}
 }

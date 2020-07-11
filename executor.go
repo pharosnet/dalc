@@ -2,14 +2,11 @@ package dalc
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 )
 
-type ExecuteFunc func(ctx context.Context, stmt *sql.Stmt, row interface{}) (result sql.Result, err error)
-
-func Execute(ctx context.Context, query string, fn ExecuteFunc, rows ...interface{}) (affected int64, err error) {
+func Execute(ctx context.Context, query string, args *Args) (affected int64, err error) {
 	if ctx == nil {
 		err = errors.New("execute failed, context is empty")
 		return
@@ -18,12 +15,8 @@ func Execute(ctx context.Context, query string, fn ExecuteFunc, rows ...interfac
 		err = errors.New("execute failed, query is empty")
 		return
 	}
-	if fn == nil {
-		err = errors.New("execute failed, execute function is empty")
-		return
-	}
-	if rows == nil || len(rows) == 0 {
-		err = errors.New("execute failed, rows are empty")
+	if args == nil || args.IsEmpty() {
+		err = errors.New("execute failed, args are empty")
 		return
 	}
 	stmt, prepareErr := prepare(ctx).PrepareContext(ctx, query)
@@ -38,25 +31,23 @@ func Execute(ctx context.Context, query string, fn ExecuteFunc, rows ...interfac
 			return
 		}
 	}()
-	for _, row := range rows {
-		result, execErr := fn(ctx, stmt, row)
-		if execErr != nil {
-			err = execErr
-			return
-		}
-		affectedRows, affectedErr := result.RowsAffected()
-		if affectedErr != nil {
-			err = fmt.Errorf("execute failed, get result's affected failed. reason: %v, row: %v", affectedErr, row)
-			return
-		}
-		if affectedRows == 0 {
-			err = fmt.Errorf("execute failed, affected nothing, row: %v", row)
-			return
-		}
-		affected = affected + affectedRows
+	result, execErr := stmt.ExecContext(ctx, args.values)
+	if execErr != nil {
+		err = execErr
+		return
 	}
+	affectedRows, affectedErr := result.RowsAffected()
+	if affectedErr != nil {
+		err = fmt.Errorf("execute failed, get result's affected failed. sql: %s reason: %v", query, affectedErr)
+		return
+	}
+	if affectedRows == 0 {
+		err = fmt.Errorf("execute failed, affected nothing, sql: %s", query)
+		return
+	}
+	affected = affectedRows
 	if hasLog() {
-		logf("execute success, affected: %d, sql: %s", affected, query)
+		logger.Debugf("execute success, affected: %d, sql: %s", affected, query)
 	}
 	return
 }

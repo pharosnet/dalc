@@ -7,10 +7,9 @@ import (
 	"fmt"
 )
 
+type QueryResultIterator func(ctx context.Context, rows *sql.Rows, rowErr error) (err error)
 
-type QueryScanRangeFn func(ctx context.Context, rows *sql.Rows, rowErr error) (err error)
-
-func Query(ctx context.Context, query string, fn QueryScanRangeFn, args ...interface{}) (err error) {
+func Query(ctx context.Context, query string, args *Args, iterator QueryResultIterator) (err error) {
 	if ctx == nil {
 		err = errors.New("query failed, context is empty")
 		return
@@ -19,8 +18,8 @@ func Query(ctx context.Context, query string, fn QueryScanRangeFn, args ...inter
 		err = errors.New("query failed, query is empty")
 		return
 	}
-	if fn == nil {
-		err = errors.New("query failed, scan function is empty")
+	if iterator == nil {
+		err = errors.New("query failed, iterator is empty")
 		return
 	}
 	stmt, prepareErr := prepare(ctx).PrepareContext(ctx, query)
@@ -35,7 +34,14 @@ func Query(ctx context.Context, query string, fn QueryScanRangeFn, args ...inter
 			return
 		}
 	}()
-	rows, queryErr := stmt.QueryContext(ctx, args...)
+	var rows *sql.Rows = nil
+	var queryErr error = nil
+	if args != nil && len(args.values) > 0 {
+		rows, queryErr = stmt.QueryContext(ctx, args.Values()...)
+	} else {
+		rows, queryErr = stmt.QueryContext(ctx)
+	}
+
 	if queryErr != nil {
 		err = fmt.Errorf("query failed, query failed. reason: %v", queryErr)
 		return
@@ -48,14 +54,14 @@ func Query(ctx context.Context, query string, fn QueryScanRangeFn, args ...inter
 		}
 	}()
 	for rows.Next() {
-		scanErr := fn(ctx, rows, rows.Err())
-		if scanErr != nil {
-			err = scanErr
+		iteratorErr := iterator(ctx, rows, rows.Err())
+		if iteratorErr != nil {
+			err = iteratorErr
 			return
 		}
 	}
 	if hasLog() {
-		logf("query success, sql: %s\n", query)
+		logger.Debugf("query success, sql: %s\n", query)
 	}
 	return
 }
