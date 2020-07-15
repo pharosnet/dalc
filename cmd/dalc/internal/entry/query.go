@@ -1,24 +1,120 @@
 package entry
 
+import (
+	"fmt"
+	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/commons"
+)
+
 const (
-	ReadQueryKind  = QueryKind("r")
-	WriteQueryKind = QueryKind("w")
+	SelectQueryKind = QueryKind("SELECT")
+	InsertQueryKind = QueryKind("INSERT")
+	UpdateQueryKind = QueryKind("UPDATE")
+	DeleteQueryKind = QueryKind("DELETE")
 )
 
 type QueryKind string
 
+func NewQuery() *Query {
+	return &Query{
+		fill:      false,
+		Sql:       "",
+		Kind:      "",
+		Name:      "",
+		TableList: make([]*QueryTable, 0, 1),
+		SelectExprList: &SelectExprList{
+			ExprList: make([]*QueryExpr, 0, 1),
+		},
+		CondExprList: &CondExprList{
+
+			ExprList: make([]*QueryExpr, 0, 1),
+		},
+	}
+}
+
+// mer
+func QueryMergeCond(root *Query, sub *Query) {
+	if root == nil || sub == nil {
+		return
+	}
+
+	sub.Fill()
+	//root.ExprList = append(root.ExprList, sub.ExprList...)
+	root.TableList = append(root.TableList, sub.TableList...)
+	root.CondExprList.ExprList = append(root.CondExprList.ExprList, sub.CondExprList.ExprList...)
+
+	return
+}
+
 type Query struct {
-	Kind   QueryKind
-	Name   string
-	Ref    *Table
-	Result *QueryResult
+	fill           bool
+	Sql            string
+	Kind           QueryKind
+	Name           string
+	TableList      []*QueryTable
+	SelectExprList *SelectExprList
+	CondExprList   *CondExprList
 }
 
-type QueryResult struct {
-	Fields []*QueryResultField
+func (q *Query) Fill() {
+	if q.fill {
+		return
+	}
+	for _, expr := range q.SelectExprList.ExprList {
+		for _, table := range q.TableList {
+			if expr.ColumnQualifierName == table.Table || expr.ColumnQualifierName == table.NameAs {
+				expr.Table = table
+				break
+			}
+		}
+	}
+	for _, expr := range q.CondExprList.ExprList {
+		for _, table := range q.TableList {
+			if expr.ColumnQualifierName == table.Table || expr.ColumnQualifierName == table.NameAs {
+				expr.Table = table
+				break
+			}
+		}
+	}
+	q.fill = true
+	return
 }
 
-type QueryResultField struct {
-	Name string
-	Type *GoType
+type SelectExprList struct {
+	ExprList []*QueryExpr
+}
+
+type CondExprList struct {
+	ExprList []*QueryExpr
+}
+
+type QueryExpr struct {
+	Table               *QueryTable
+	ColumnQualifierName string // table or table as
+	ColumnName          string // column or name as
+	FuncName            string
+	Name                string
+	GoType              *GoType
+}
+
+func (e *QueryExpr) BuildName() {
+	if e.Name != "" {
+		return
+	}
+	if e.ColumnQualifierName != "" {
+		e.Name = commons.SnakeToCamel(e.ColumnQualifierName)
+		return
+	}
+	if e.ColumnName != "" {
+		x := e.ColumnName
+		if e.FuncName != "" {
+			x = fmt.Sprintf("%s_%s", x, e.FuncName)
+		}
+		e.Name = commons.SnakeToCamel(x)
+	}
+}
+
+type QueryTable struct {
+	Schema string
+	Table  string
+	NameAs string
 }

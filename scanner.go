@@ -49,10 +49,10 @@ func NewJson(v interface{}) (*NullJson, error) {
 	return &NullJson{Bytes: p, Valid: true}, nil
 }
 
-type NullJson struct {
-	Bytes []byte `json:"-"`
-	Valid bool   `json:"-"`
-}
+//type NullJson struct {
+//	Bytes []byte `json:"-"`
+//	Valid bool   `json:"-"`
+//}
 
 const tagName = "col"
 

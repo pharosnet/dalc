@@ -9,6 +9,11 @@ import (
 
 func ParseMySQLSchema(content string) (schema *entry.Schema, err error) {
 
+	if !strings.Contains(content, ";") {
+		err = fmt.Errorf("parse schema failed, there is no ; ")
+		return
+	}
+
 	blocks := strings.Split(content, ";")
 
 	schema = &entry.Schema{
@@ -210,6 +215,7 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 		Schema:   "",
 		Name:     "",
 		GoName:   "",
+		PKs:      make([]string, 0, 1),
 		Columns:  make([]*entry.Column, 0, 1),
 	}
 	columnsBegin := false
@@ -294,8 +300,9 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 				err = fmt.Errorf("read table %s column failed in %s", table.FullName, line)
 				return
 			}
-			columnsEnd = commons.WordsContains(words, "PRIMARY", "KEY", "UNIQUE")
+			columnsEnd = commons.WordsContainsOne(words, "PRIMARY", "KEY", "UNIQUE")
 			if columnsEnd {
+				lines.Prev()
 				columnsBegin = false
 				continue
 			}
@@ -323,23 +330,53 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 				refType := commons.NormalizeValue(words[refTypeKeyIdx+1])
 				goType = entry.NewGoType(refType)
 			}
-			if goType == nil {
-				goType0, goTypeErr := columnType.GoType()
-				if goType0 == nil || goTypeErr != nil {
-					err = fmt.Errorf("read table %s column failed, %s, %v in %s", table.FullName, columnName, goTypeErr, line)
-					return
+			nullable := true
+			nullIdx := commons.WordsIndex(words, "NULL")
+			if nullIdx > 0 {
+				if words[nullIdx-1] == "NOT" {
+					nullable = false
 				}
-				goType = goType0
 			}
 
+			autoIncrement := commons.WordsIndex(words, "AUTO_INCREMENT") > 0
+
+			//if goType == nil {
+			//	goType0, goTypeErr := columnType.GoType()
+			//	if goType0 == nil || goTypeErr != nil {
+			//		err = fmt.Errorf("read table %s column failed, %s, %v in %s", table.FullName, columnName, goTypeErr, line)
+			//		return
+			//	}
+			//	goType = goType0
+			//}
+
 			column := &entry.Column{
-				Name:         columnName,
-				Type:         columnType,
-				GoName:       columnGoName,
-				GoType:       goType,
-				DefaultValue: defaultValue,
+				Name:          columnName,
+				Type:          columnType,
+				GoName:        columnGoName,
+				GoType:        goType,
+				DefaultValue:  defaultValue,
+				Null:          nullable,
+				AutoIncrement: autoIncrement,
+			}
+			if column.GoType == nil {
+				mapped := column.MappingGoType()
+				if !mapped {
+					err = fmt.Errorf("column %s type %s mapped no go type", column.Name, column.Type)
+					return
+				}
 			}
 			table.Columns = append(table.Columns, column)
+		}
+
+		// pk
+		if strings.Index(lineUpper, "PRIMARY KEY ") >= 0 {
+			leftBracketIndex := strings.Index(lineUpper, "(")
+			rightBracketIndex := strings.Index(lineUpper, ")")
+			pkLine := strings.ReplaceAll(lineUpper[leftBracketIndex+1:rightBracketIndex], "`", "")
+			pks := strings.Split(pkLine, ",")
+			for _, pk := range pks {
+				table.PKs = append(table.PKs, strings.TrimSpace(pk))
+			}
 		}
 
 	}

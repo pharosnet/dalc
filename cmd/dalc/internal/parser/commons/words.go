@@ -48,7 +48,7 @@ func WordsIndex(words []string, word string) (idx int) {
 	return
 }
 
-func WordsContains(words []string, sub ...string) (has bool) {
+func WordsContainsOne(words []string, sub ...string) (has bool) {
 	for _, word := range sub {
 		word = strings.ToUpper(word)
 		for _, word0 := range words {
@@ -58,5 +58,22 @@ func WordsContains(words []string, sub ...string) (has bool) {
 			}
 		}
 	}
+	return
+}
+
+func WordsContainsAll(words []string, sub ...string) (has bool) {
+	n := len(sub)
+	if n == 0 {
+		return
+	}
+	for _, word := range sub {
+		word = strings.ToUpper(word)
+		for _, word0 := range words {
+			if strings.ToUpper(word0) == word {
+				n--
+			}
+		}
+	}
+	has = n == 0
 	return
 }

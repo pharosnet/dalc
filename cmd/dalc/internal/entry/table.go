@@ -5,5 +5,6 @@ type Table struct {
 	Schema   string
 	Name     string
 	GoName   string
+	PKs      []string
 	Columns  []*Column
 }
