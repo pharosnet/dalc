@@ -21,7 +21,10 @@ func ParseMySQLQuery(content string) (queries []*entry.Query, err error) {
 	blocks := strings.Split(content, ";")
 
 	for _, block := range blocks {
-
+		block = strings.TrimSpace(block)
+		if len(block) == 0 || len(commons.ReadWords([]byte(block))) == 0 {
+			continue
+		}
 		name := ""
 		querySQL := ""
 
@@ -32,7 +35,7 @@ func ParseMySQLQuery(content string) (queries []*entry.Query, err error) {
 			words := commons.ReadWords([]byte(upperLine))
 			if commons.WordsContainsAll(words, "--", "NAME:") {
 				nameIdx := commons.WordsIndex(words, "NAME:")
-				name = lines.CurrentLineWords()[nameIdx - 1]
+				name = lines.CurrentLineWords()[nameIdx+1]
 				querySQL = lines.Remain()
 			}
 			if name != "" {
@@ -76,13 +79,10 @@ func parseMySQLQuery0(name string, content string) (query *entry.Query, err erro
 		err = parseQuerySelect(query, stmt.(sqlparser.SelectStatement))
 	case *sqlparser.Insert:
 		query.Kind = entry.InsertQueryKind
-
 	case *sqlparser.Update:
 		query.Kind = entry.UpdateQueryKind
-
 	case *sqlparser.Delete:
 		query.Kind = entry.DeleteQueryKind
-
 	default:
 		err = fmt.Errorf("parse query failed, %v is unsupported", reflect.TypeOf(stmt))
 	}

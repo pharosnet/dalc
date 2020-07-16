@@ -26,7 +26,7 @@ func NewQuery() *Query {
 		},
 		CondExprList: &CondExprList{
 
-			ExprList: make([]*QueryExpr, 0, 1),
+			ExprList: make([]*CondExpr, 0, 1),
 		},
 	}
 }
@@ -39,8 +39,10 @@ func QueryMergeCond(root *Query, sub *Query) {
 
 	sub.Fill()
 	//root.ExprList = append(root.ExprList, sub.ExprList...)
-	root.TableList = append(root.TableList, sub.TableList...)
-	root.CondExprList.ExprList = append(root.CondExprList.ExprList, sub.CondExprList.ExprList...)
+	if len(sub.CondExprList.ExprList) > 0 {
+		root.TableList = append(root.TableList, sub.TableList...)
+		root.CondExprList.ExprList = append(root.CondExprList.ExprList, sub.CondExprList.ExprList...)
+	}
 
 	return
 }
@@ -62,7 +64,7 @@ func (q *Query) Fill() {
 	for _, expr := range q.SelectExprList.ExprList {
 		for _, table := range q.TableList {
 			if expr.ColumnQualifierName == table.Table || expr.ColumnQualifierName == table.NameAs {
-				expr.Table = table
+				expr.Table = *table
 				break
 			}
 		}
@@ -70,7 +72,7 @@ func (q *Query) Fill() {
 	for _, expr := range q.CondExprList.ExprList {
 		for _, table := range q.TableList {
 			if expr.ColumnQualifierName == table.Table || expr.ColumnQualifierName == table.NameAs {
-				expr.Table = table
+				expr.Table = *table
 				break
 			}
 		}
@@ -84,11 +86,11 @@ type SelectExprList struct {
 }
 
 type CondExprList struct {
-	ExprList []*QueryExpr
+	ExprList []*CondExpr
 }
 
 type QueryExpr struct {
-	Table               *QueryTable
+	Table               QueryTable
 	ColumnQualifierName string // table or table as
 	ColumnName          string // column or name as
 	FuncName            string
@@ -100,10 +102,10 @@ func (e *QueryExpr) BuildName() {
 	if e.Name != "" {
 		return
 	}
-	if e.ColumnQualifierName != "" {
-		e.Name = commons.SnakeToCamel(e.ColumnQualifierName)
-		return
-	}
+	//if e.ColumnQualifierName != "" {
+	//	e.Name = commons.SnakeToCamel(e.ColumnQualifierName)
+	//	return
+	//}
 	if e.ColumnName != "" {
 		x := e.ColumnName
 		if e.FuncName != "" {
@@ -117,4 +119,29 @@ type QueryTable struct {
 	Schema string
 	Table  string
 	NameAs string
+}
+
+type CondExpr struct {
+	Table               QueryTable
+	ColumnQualifierName string // table or table as
+	ColumnName          string // column or name as
+	PlaceHolderKind     string
+	Args                []string
+	Name                string
+	GoType              *GoType
+	IsArg bool
+}
+
+func (e *CondExpr) BuildName() {
+	if e.Name != "" {
+		return
+	}
+	//if e.ColumnQualifierName != "" {
+	//	e.Name = commons.SnakeToCamel(e.ColumnQualifierName)
+	//	return
+	//}
+	if e.ColumnName != "" {
+		x := e.ColumnName
+		e.Name = commons.SnakeToCamel(x)
+	}
 }

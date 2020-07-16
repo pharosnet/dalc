@@ -3,15 +3,13 @@ package mysql
 import (
 	"fmt"
 	"github.com/pharosnet/dalc/cmd/dalc/internal/entry"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/commons"
 	"github.com/vitessio/vitess/go/vt/sqlparser"
 	"reflect"
-	"strings"
 )
 
-func parseSelectExprs(query *entry.Query, stmt sqlparser.SelectExprs) (err error) {
+func parseSelectExprs(query *entry.Query, exprs sqlparser.SelectExprs) (err error) {
 
-	err = stmt.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
+	err = exprs.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
 
 		switch node.(type) {
 		case *sqlparser.StarExpr:
@@ -29,159 +27,197 @@ func parseSelectExprs(query *entry.Query, stmt sqlparser.SelectExprs) (err error
 }
 
 func parseSelectNonStarExpr(query *entry.Query, stmt *sqlparser.NonStarExpr) (err error) {
-
+	//
 	queryExpr := &entry.QueryExpr{
-		Table:               nil,
+		Table:               entry.QueryTable{},
 		ColumnQualifierName: "",
 		ColumnName:          "",
 		FuncName:            "",
 		Name:                "",
 		GoType:              nil,
 	}
-	queryExprGot := false
 
-	err = stmt.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
+	// as -> name
+	if !stmt.As.IsEmpty() {
+		queryExpr.Name = stmt.As.CompliantName()
+	}
 
-		switch node.(type) {
-		case *sqlparser.ColName:
+	node := stmt.Expr
+	switch node.(type) {
+	case *sqlparser.ColName:
+		if queryExpr.ColumnName == "" {
+			x := node.(*sqlparser.ColName)
+			queryExpr.ColumnName = x.Name.CompliantName()
+			if x.Qualifier != nil {
+				queryExpr.ColumnQualifierName = x.Qualifier.Name.CompliantName()
+			}
+		}
+	case *sqlparser.BinaryExpr: // + - * / & | 
+		x := node.(*sqlparser.BinaryExpr)
+		if !(x.Operator == "+" || x.Operator == "-" || x.Operator == "*" || x.Operator == "/" || x.Operator == "%") {
+			err = fmt.Errorf("parse non star expr failed, %s is not support", x.Operator)
+			return
+		}
+		left, ok := x.Left.(*sqlparser.ColName)
+		if !ok {
+			err = fmt.Errorf("parse non star expr failed, found binary expr, but left is not a column, left is %v", x.Left)
+			return
+		}
+		if queryExpr.ColumnName == "" {
+			queryExpr.ColumnName = left.Name.CompliantName()
+			if left.Qualifier != nil {
+				queryExpr.ColumnQualifierName = left.Qualifier.Name.CompliantName()
+			}
+		}
+	//case *sqlparser.UnaryExpr: //
+
+	case *sqlparser.ParenExpr:
+		x := node.(*sqlparser.ParenExpr)
+		_, ok := x.Expr.(*sqlparser.ComparisonExpr)
+		if !ok {
+			err = fmt.Errorf("parse non star expr failed, found paren expr, but it has not a comparion expr, %v", reflect.TypeOf(x.Expr))
+			return
+		}
+		queryExpr.GoType = entry.NewGoType("bool")
+	case *sqlparser.ComparisonExpr: // > < !=
+		x := node.(*sqlparser.ComparisonExpr)
+		if !(x.Operator == ">" || x.Operator == ">=" || x.Operator == "<" || x.Operator == "<=" || x.Operator == "=" || x.Operator == "!=") {
+			err = fmt.Errorf("parse non star expr failed, %s is not support", x.Operator)
+			return
+		}
+		queryExpr.GoType = entry.NewGoType("bool")
+		//switch x.Left.(type) {
+		//case *sqlparser.ColName:
+		//	left := x.Left.(*sqlparser.ColName)
+		//	if queryExpr.ColumnName == "" {
+		//		queryExpr.ColumnName = left.Name.CompliantName()
+		//		if left.Qualifier != nil {
+		//			queryExpr.ColumnQualifierName = left.Qualifier.Name.CompliantName()
+		//		}
+		//	}
+		//case *sqlparser.FuncExpr:
+		//	fn := x.Left.(*sqlparser.FuncExpr)
+		//	if !fn.IsAggregate() {
+		//		err = fmt.Errorf("parse non star expr failed, found comparison expr, but left is not a aggregate func, left is %v", x.Left)
+		//		return
+		//	}
+		//	if !(fn.Name.Lowered() == "count" || fn.Name.Lowered() == "sum" || fn.Name.Lowered() == "max" || fn.Name.Lowered() == "min" ) {
+		//		err = fmt.Errorf("parse non star expr failed, found comparison expr, but left is not a supported aggregate func, left is %v", x.Left)
+		//		return
+		//	}
+		//	if fn.Name.Lowered() == "count" {
+		//		queryExpr.GoType = entry.NewGoType("int64")
+		//	}
+		//	err = fn.Exprs.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
+		//		fnX, ok := node.(*sqlparser.NonStarExpr)
+		//		if !ok {
+		//			err = fmt.Errorf("parse non star expr failed, found comparison expr, left func, but func expr is not non star expr %v", reflect.TypeOf(node))
+		//			return
+		//		}
+		//		fnCol, ok := fnX.Expr.(*sqlparser.ColName)
+		//		if !ok {
+		//			err = fmt.Errorf("parse non star expr failed, found comparison expr, left func, but func expr is column expr %v", reflect.TypeOf(fnX.Expr))
+		//			return
+		//		}
+		//		if queryExpr.ColumnName == "" {
+		//			queryExpr.ColumnName = fnCol.Name.CompliantName()
+		//			if fnCol.Qualifier != nil {
+		//				queryExpr.ColumnQualifierName = fnCol.Qualifier.Name.CompliantName()
+		//			}
+		//		}
+		//		return
+		//	})
+		//	if err != nil {
+		//		return
+		//	}
+		//default:
+		//	err = fmt.Errorf("parse non star expr failed, found comparison expr, but left is not a column or func, left is %v", x.Left)
+		//	return
+		//}
+		//left, ok := x.Left.(*sqlparser.ColName)
+		//if !ok {
+		//	err = fmt.Errorf("parse non star expr failed, found binary expr, but left is not a column, left is %v", x.Left)
+		//	return
+		//}
+		//if queryExpr.ColumnName == "" {
+		//	queryExpr.ColumnName = left.Name.CompliantName()
+		//	if left.Qualifier != nil {
+		//		queryExpr.ColumnQualifierName = left.Qualifier.Name.CompliantName()
+		//	}
+		//}
+	case *sqlparser.FuncExpr:
+		fn := node.(*sqlparser.FuncExpr)
+		if !fn.IsAggregate() {
+			err = fmt.Errorf("parse non star expr failed, found func expr, but it is not a aggregate func, it is %v", node)
+			return
+		}
+		if !(fn.Name.Lowered() == "count" || fn.Name.Lowered() == "sum" || fn.Name.Lowered() == "max" || fn.Name.Lowered() == "min") {
+			err = fmt.Errorf("parse non star expr failed, found func expr, but it is not a supported aggregate func, it is %v", node)
+			return
+		}
+		if fn.Name.Lowered() == "count" {
+			queryExpr.GoType = entry.NewGoType("int")
+		}
+		queryExpr.FuncName = fn.Name.Lowered()
+		err = fn.Exprs.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
+			fnX, ok := node.(*sqlparser.NonStarExpr)
+			if !ok {
+				err = fmt.Errorf("parse non star expr failed, found func expr, but func expr is not non star expr %v", reflect.TypeOf(node))
+				return
+			}
+			fnCol, ok := fnX.Expr.(*sqlparser.ColName)
+			if !ok {
+				err = fmt.Errorf("parse non star expr failed, found func expr, but func expr is column expr %v", reflect.TypeOf(fnX.Expr))
+				return
+			}
 			if queryExpr.ColumnName == "" {
-				x := node.(*sqlparser.ColName)
-				queryExpr.ColumnName = x.Name.CompliantName()
-				if x.Qualifier != nil {
-					queryExpr.ColumnQualifierName = x.Qualifier.Name.CompliantName()
+				queryExpr.ColumnName = fnCol.Name.CompliantName()
+				if fnCol.Qualifier != nil {
+					queryExpr.ColumnQualifierName = fnCol.Qualifier.Name.CompliantName()
 				}
-				queryExprGot = true
+
 			}
-
-		case sqlparser.ColIdent:
-			if queryExpr.Name == "" {
-				ident := node.(sqlparser.ColIdent)
-				identName := ident.CompliantName()
-				if identName != "" {
-					queryExpr.Name = commons.SnakeToCamel(identName)
-				}
-			}
-		case sqlparser.Expr:
-
-		case *sqlparser.FuncExpr:
-			x := node.(*sqlparser.FuncExpr)
-			err = parseSelectNonStarFunExpr(queryExpr, x)
-		case *sqlparser.Subquery:
-			x := node.(*sqlparser.Subquery)
-			subQuery := entry.NewQuery()
-			err = parseQuerySelect(subQuery, x.Select)
-			if err != nil {
-				return
-			}
-			subQuery.Fill()
-			if len(subQuery.SelectExprList.ExprList) != 1 {
-				err = fmt.Errorf("parse non star expr failed, sub query must has one expr, but found %d", len(subQuery.SelectExprList.ExprList))
-				return
-			}
-			subExpr := subQuery.SelectExprList.ExprList[0]
-			queryExpr.Table = subExpr.Table
-			queryExpr.ColumnName = subExpr.ColumnName
-			queryExpr.FuncName = subExpr.FuncName
-			queryExpr.GoType = subExpr.GoType
-			entry.QueryMergeCond(query, subQuery)
-
-		case *sqlparser.ParenExpr: // ( ... )
-
-		case *sqlparser.ComparisonExpr: // left ? right
-
-		case *sqlparser.AndExpr: // left and right
-
-		case *sqlparser.OrExpr: // left or right
-
-		case *sqlparser.NotExpr: // not ?
-
-
-		default:
-			err = fmt.Errorf("parse non star expr failed, %v is not support", reflect.TypeOf(node))
+			return
+		})
+		if err != nil {
+			return
 		}
-
-		queryExpr.BuildName()
-		query.SelectExprList.ExprList = append(query.SelectExprList.ExprList, queryExpr)
-		return
-	})
-
-	if err != nil {
-		err = fmt.Errorf("parse non star expr failed, %v, \n%s", err, query.Sql)
+	case *sqlparser.Subquery:
+		x := node.(*sqlparser.Subquery)
+		subQuery := entry.NewQuery()
+		parseSubQueryErr := parseQuerySelect(subQuery, x.Select)
+		if parseSubQueryErr != nil {
+			err = fmt.Errorf("parse non star expr failed, found sub query expr, %v", parseSubQueryErr)
+			return
+		}
+		subQuery.Fill()
+		if len(subQuery.SelectExprList.ExprList) != 1 {
+			err = fmt.Errorf("parse non star expr failed, sub query must has one expr, but found %d", len(subQuery.SelectExprList.ExprList))
+			return
+		}
+		subExpr := subQuery.SelectExprList.ExprList[0]
+		queryExpr.Table = subExpr.Table
+		queryExpr.ColumnName = subExpr.ColumnName
+		queryExpr.FuncName = subExpr.FuncName
+		queryExpr.GoType = subExpr.GoType
+		entry.QueryMergeCond(query, subQuery)
+	case *sqlparser.ExistsExpr:
+		x := node.(*sqlparser.ExistsExpr)
+		subQuery := entry.NewQuery()
+		parseSubQueryErr := parseQuerySelect(subQuery, x.Subquery.Select)
+		if parseSubQueryErr != nil {
+			err = fmt.Errorf("parse non star expr failed, found exists expr, %v", parseSubQueryErr)
+			return
+		}
+		subQuery.Fill()
+		queryExpr.GoType = entry.NewGoType("bool")
+		entry.QueryMergeCond(query, subQuery)
+	default:
+		err = fmt.Errorf("parse non star expr failed, %v is not support", reflect.TypeOf(node))
 	}
 
-	return
-}
-
-func parseSelectNonStarFunExpr(expr *entry.QueryExpr, stmt *sqlparser.FuncExpr) (err error) {
-	funName := strings.ToLower(stmt.Name.CompliantName())
-	if funName == "count" {
-		expr.GoType = entry.NewGoType("int")
-	}
-	expr.FuncName = funName
-	err = stmt.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
-		switch node.(type) {
-		case *sqlparser.NonStarExpr:
-			nonStar := node.(*sqlparser.NonStarExpr)
-			_ = nonStar.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
-				switch node.(type) {
-				case *sqlparser.ColName:
-					x := node.(*sqlparser.ColName)
-					expr.ColumnName = x.Name.CompliantName()
-					if x.Qualifier != nil {
-						expr.ColumnQualifierName = x.Qualifier.Name.CompliantName()
-					}
-				case sqlparser.ColIdent:
-
-				default:
-					err = fmt.Errorf("parse non star func expr failed %v is not support", reflect.TypeOf(node))
-				}
-
-				return
-			})
-		case sqlparser.ColIdent:
-			ident := node.(sqlparser.ColIdent)
-			identName := ident.CompliantName()
-			if identName != "" {
-				expr.Name = commons.SnakeToCamel(identName)
-			}
-		default:
-			err = fmt.Errorf("parse non star func expr failed, %v, %v is not support", funName, reflect.TypeOf(node))
-		}
-		return
-	})
-
-	return
-}
-
-func parseSelectSubQueryExpr(expr *entry.QueryExpr, stmt *sqlparser.Subquery) (err error) {
-
-	err = stmt.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
-		switch node.(type) {
-		case sqlparser.Comments:
-
-		case sqlparser.SelectExprs:
-			x := node.(sqlparser.SelectExprs)
-			err = x.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
-
-				return
-			})
-			err = parseSelectExprs(query, node.(sqlparser.SelectExprs))
-		case sqlparser.TableExprs:
-
-		case *sqlparser.Where:
-
-		case *sqlparser.Limit:
-
-		case sqlparser.GroupBy:
-
-		case sqlparser.OrderBy:
-
-		default:
-			err = fmt.Errorf("parse query select failed, %s is not support, in \n%s", reflect.TypeOf(node), query.Sql)
-		}
-
-		return
-	})
+	queryExpr.BuildName()
+	query.SelectExprList.ExprList = append(query.SelectExprList.ExprList, queryExpr)
 
 	return
 }
