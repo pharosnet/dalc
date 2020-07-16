@@ -50,6 +50,7 @@ func QueryMergeCond(root *Query, sub *Query) {
 
 type Query struct {
 	fill           bool
+	RawName        string
 	Sql            string
 	Kind           QueryKind
 	Name           string

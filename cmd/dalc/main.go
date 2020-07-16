@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/pharosnet/dalc/cmd/dalc/internal/config"
+	"github.com/pharosnet/dalc/cmd/dalc/internal/generates"
 	"github.com/pharosnet/dalc/cmd/dalc/internal/logs"
+	"github.com/pharosnet/dalc/cmd/dalc/internal/parser"
 	"github.com/urfave/cli/v2"
 	"os"
 	"path"
@@ -98,6 +100,17 @@ func main() {
 		}
 		logs.Log().Println("config", conf)
 
+		tables, queries, parseErr := parser.Parse(dialect, schema, query)
+		if parseErr != nil {
+			err = parseErr
+			return
+		}
+		genErr := generates.Generate(out, tables, queries)
+		if genErr != nil {
+			err = genErr
+			return
+		}
+		logs.Log().Println("succeed", out)
 		return
 	}
 

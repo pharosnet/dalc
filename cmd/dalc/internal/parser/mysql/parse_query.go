@@ -80,6 +80,7 @@ func parseMySQLQuery0(name string, content string) (query *entry.Query, err erro
 		return
 	}
 	query = entry.NewQuery()
+	query.RawName = strings.ToLower(name)
 	query.Name = commons.SnakeToCamel(strings.ToLower(name))
 	query.Sql = querySQL
 

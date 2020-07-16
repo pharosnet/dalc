@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pharosnet/dalc/cmd/dalc/internal/entry"
 	"github.com/pharosnet/dalc/cmd/dalc/internal/files"
+	"github.com/pharosnet/dalc/cmd/dalc/internal/logs"
 	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/mysql"
 )
 
@@ -40,6 +41,7 @@ func Parse(dialect string, schemaPath string, queryPath string) (tables []*entry
 			}
 			schemaNameMap[schema.Name] = schema.Name
 			tables = append(tables, schema.Tables...)
+			logs.Log().Println("parse schema", file.Name, "succeed")
 		}
 		queryNameMap := make(map[string]string)
 		for _, file := range queryFiles {
@@ -57,6 +59,7 @@ func Parse(dialect string, schemaPath string, queryPath string) (tables []*entry
 				queryNameMap[query.Name] = query.Name
 				queries = append(queries, query)
 			}
+			logs.Log().Println("parse query", file.Name, "succeed")
 		}
 		var fillErr error
 		queries, fillErr = entry.QueryFill(tables, queries)
