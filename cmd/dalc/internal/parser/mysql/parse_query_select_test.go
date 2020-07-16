@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestParseMySQLQuery(t *testing.T) {
+func TestParseMySQLQuerySelect(t *testing.T) {
 	pwd, pwdErr := os.Getwd()
 	if pwdErr != nil {
 		t.Error(pwdErr)

@@ -35,11 +35,12 @@ func parseQueryWhere(query *entry.Query, node *sqlparser.Where) (err error) {
 			val := node.(*sqlparser.SQLVal)
 			cond := conds[len(conds)-1]
 			valBytes := bytes.TrimSpace(val.Val)
+
 			if val.Type == sqlparser.ValArg {
 				cond.IsArg = true
-			} else if bytes.LastIndexByte(valBytes, '#') == 0 && bytes.LastIndexByte(valBytes, '#') == len(val.Val)-1 {
+			} else if bytes.IndexByte(valBytes, '#') == 0 && bytes.LastIndexByte(valBytes, '#') == len(val.Val)-1 {
 				cond.IsArg = true
-				cond.PlaceHolderKind = string(valBytes)
+				cond.PlaceHolder = string(valBytes)
 			}
 		case *sqlparser.Subquery:
 			err = fmt.Errorf("parse where failed, %v is not support", reflect.TypeOf(node))

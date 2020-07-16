@@ -102,6 +102,16 @@ func ParseMySQLSchema(content string) (schema *entry.Schema, err error) {
 		return
 	}
 
+	nameMap := make(map[string]string)
+	for _, table := range schema.Tables {
+		_, has := nameMap[table.Name]
+		if has {
+			err = fmt.Errorf("parse schema failed, query name is repeat, %s", table.Name)
+			return
+		}
+		nameMap[table.Name] = table.Name
+	}
+
 	// todo
 	if len(changes) > 0 {
 		for _, change := range changes {
@@ -235,7 +245,7 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 						break
 					}
 				}
-				table.GoName = goName
+				table.GoName = commons.SnakeToCamel(strings.ToLower(goName))
 				if goName != "" {
 					continue
 				}
@@ -339,15 +349,6 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 			}
 
 			autoIncrement := commons.WordsIndex(words, "AUTO_INCREMENT") > 0
-
-			//if goType == nil {
-			//	goType0, goTypeErr := columnType.GoType()
-			//	if goType0 == nil || goTypeErr != nil {
-			//		err = fmt.Errorf("read table %s column failed, %s, %v in %s", table.FullName, columnName, goTypeErr, line)
-			//		return
-			//	}
-			//	goType = goType0
-			//}
 
 			column := &entry.Column{
 				Name:          columnName,

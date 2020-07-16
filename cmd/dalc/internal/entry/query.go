@@ -3,6 +3,7 @@ package entry
 import (
 	"fmt"
 	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/commons"
+	"strings"
 )
 
 const (
@@ -107,7 +108,7 @@ func (e *QueryExpr) BuildName() {
 	//	return
 	//}
 	if e.ColumnName != "" {
-		x := e.ColumnName
+		x := strings.ToLower(e.ColumnName)
 		if e.FuncName != "" {
 			x = fmt.Sprintf("%s_%s", x, e.FuncName)
 		}
@@ -125,11 +126,11 @@ type CondExpr struct {
 	Table               QueryTable
 	ColumnQualifierName string // table or table as
 	ColumnName          string // column or name as
-	PlaceHolderKind     string
+	PlaceHolder         string
 	Args                []string
 	Name                string
 	GoType              *GoType
-	IsArg bool
+	IsArg               bool
 }
 
 func (e *CondExpr) BuildName() {
@@ -141,7 +142,7 @@ func (e *CondExpr) BuildName() {
 	//	return
 	//}
 	if e.ColumnName != "" {
-		x := e.ColumnName
+		x := strings.ToLower(e.ColumnName)
 		e.Name = commons.SnakeToCamel(x)
 	}
 }

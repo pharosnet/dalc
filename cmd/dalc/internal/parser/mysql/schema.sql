@@ -1,6 +1,6 @@
 USE `ddd_test`;
 
--- name: UserDomainEvents
+-- name: users_domain_events
 CREATE TABLE `users_domain_events`
 (
     `id`             bigint       NOT NULL AUTO_INCREMENT,

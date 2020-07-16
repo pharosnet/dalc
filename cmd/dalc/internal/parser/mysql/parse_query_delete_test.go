@@ -8,14 +8,14 @@ import (
 	"testing"
 )
 
-func TestParseMySQLQuery(t *testing.T) {
+func TestParseMySQLQueryDelete(t *testing.T) {
 	pwd, pwdErr := os.Getwd()
 	if pwdErr != nil {
 		t.Error(pwdErr)
 		return
 	}
 
-	schemaPath := filepath.Join(pwd, "query_select.sql")
+	schemaPath := filepath.Join(pwd, "query_delete_1.sql")
 
 	p, pErr := ioutil.ReadFile(schemaPath)
 	if pErr != nil {
@@ -65,4 +65,3 @@ func TestParseMySQLQuery(t *testing.T) {
 	}
 
 }
-

@@ -58,19 +58,29 @@ func ParseMySQLQuery(content string) (queries []*entry.Query, err error) {
 		queries = append(queries, query)
 	}
 
+	nameMap := make(map[string]string)
+	for _, query := range queries {
+		_, has := nameMap[query.Name]
+		if has {
+			err = fmt.Errorf("parse query failed, query name is repeat, %s", query.Name)
+			return
+		}
+		nameMap[query.Name] = query.Name
+	}
+
 	return
 }
 
 func parseMySQLQuery0(name string, content string) (query *entry.Query, err error) {
 
 	querySQL, _ := sqlparser.SplitTrailingComments(content)
-	stmt, parseErr := sqlparser.Parse(querySQL)
+	stmt, parseErr := sqlparser.Parse(strings.ToUpper(querySQL))
 	if parseErr != nil {
 		err = parseErr
 		return
 	}
 	query = entry.NewQuery()
-	query.Name = name
+	query.Name = commons.SnakeToCamel(strings.ToLower(name))
 	query.Sql = querySQL
 
 	switch stmt.(type) {
@@ -79,10 +89,13 @@ func parseMySQLQuery0(name string, content string) (query *entry.Query, err erro
 		err = parseQuerySelect(query, stmt.(sqlparser.SelectStatement))
 	case *sqlparser.Insert:
 		query.Kind = entry.InsertQueryKind
+		err = parseQueryInsert(query, stmt.(*sqlparser.Insert))
 	case *sqlparser.Update:
 		query.Kind = entry.UpdateQueryKind
+		err = parseQueryUpdate(query, stmt.(*sqlparser.Update))
 	case *sqlparser.Delete:
 		query.Kind = entry.DeleteQueryKind
+		err = parseQueryDelete(query, stmt.(*sqlparser.Delete))
 	default:
 		err = fmt.Errorf("parse query failed, %v is unsupported", reflect.TypeOf(stmt))
 	}

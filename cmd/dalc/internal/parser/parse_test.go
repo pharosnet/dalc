@@ -1,34 +1,38 @@
-package mysql_test
+package parser_test
 
 import (
-	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/mysql"
-	"io/ioutil"
+	"github.com/pharosnet/dalc/cmd/dalc/internal/parser"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
-func TestParseMySQLQuery(t *testing.T) {
+func TestParseMySql(t *testing.T) {
 	pwd, pwdErr := os.Getwd()
 	if pwdErr != nil {
 		t.Error(pwdErr)
 		return
 	}
 
-	schemaPath := filepath.Join(pwd, "query_select.sql")
+	dialect := "mysql"
+	schemaPath := filepath.Join(pwd, "mysql/schema.sql")
+	queryPath :=  filepath.Join(pwd, "mysql/query_select.sql")
 
-	p, pErr := ioutil.ReadFile(schemaPath)
-	if pErr != nil {
-		t.Error(pErr)
+	tables, queries, err := parser.Parse(dialect, schemaPath, queryPath)
+	if err != nil {
+		t.Error(err)
 		return
 	}
 
-	queries, parseErr := mysql.ParseMySQLQuery(string(p))
-	if parseErr != nil {
-		t.Error(parseErr)
-		return
+	t.Log("------")
+	for _, table := range tables {
+		t.Log("table", table.FullName, table.Schema, table.Name, table.GoName)
+		t.Log("\t", "pk", table.PKs)
+		for _, column := range table.Columns {
+			t.Log("\t", "column",column.GoName, column.Name, column.Type, column.DefaultValue, column.GoType, column.Null, column.AutoIncrement)
+		}
 	}
-
+	t.Log("------")
 	for _, query := range queries {
 		t.Log(query.Kind, query.Name)
 		t.Log("\t", "selects")
@@ -60,9 +64,8 @@ func TestParseMySQLQuery(t *testing.T) {
 				"column name:", expr.ColumnName,
 				"name:", expr.Name,
 				"PL:", expr.PlaceHolder,
+				"go type:", expr.GoType,
 			)
 		}
 	}
-
 }
-
