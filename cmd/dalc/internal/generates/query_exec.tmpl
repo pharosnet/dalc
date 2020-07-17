@@ -1,0 +1,25 @@
+package  {{ .Package }}
+
+import (
+    "github.com/pharosnet/dalc"
+    {{ range $key, $value := .Imports }}
+        "{{ $key }}"
+    {{ end }}
+)
+
+// ************* {{ .RawName }} *************
+const {{ .LowName }}SQL = "{{ .QuerySQL }}"
+
+type {{ .Name }}Request struct { {{ range $key, $field := .RequestFields}}
+    {{ $field.Name }} {{ $field.Type }}{{ end }}
+}
+
+func {{ .Name }}(ctx dalc.PreparedContext, request *{{ .Name }}Request) (affected int64, err error) {
+
+    args := dalc.NewArgs() {{ range $key, $field := .RequestFields}}
+    args.Arg(request.{{ $field.Name }}){{ end }}
+
+    affected, err = dalc.Execute(ctx, {{ .LowName }}SQL, args)
+
+    return
+}
