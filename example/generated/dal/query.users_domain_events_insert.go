@@ -2,8 +2,6 @@ package dal
 
 import (
 	"github.com/pharosnet/dalc"
-
-	"github.com/foo/bar"
 )
 
 // ************* users_domain_events_insert *************
@@ -11,7 +9,7 @@ const usersDomainEventsInsertSQL = "INSERT INTO `ddd_test`.`users_domain_events`
 
 type UsersDomainEventsInsertRequest struct {
 	Id            int64
-	AggregateName bar.SQLString
+	AggregateName string
 	AggregateId   string
 	EventName     string
 	EventId       string
@@ -19,6 +17,7 @@ type UsersDomainEventsInsertRequest struct {
 
 func UsersDomainEventsInsert(ctx dalc.PreparedContext, request *UsersDomainEventsInsertRequest) (affected int64, err error) {
 
+	querySQL := usersDomainEventsInsertSQL
 	args := dalc.NewArgs()
 	args.Arg(request.Id)
 	args.Arg(request.AggregateName)
@@ -26,7 +25,7 @@ func UsersDomainEventsInsert(ctx dalc.PreparedContext, request *UsersDomainEvent
 	args.Arg(request.EventName)
 	args.Arg(request.EventId)
 
-	affected, err = dalc.Execute(ctx, usersDomainEventsInsertSQL, args)
+	affected, err = dalc.Execute(ctx, querySQL, args)
 
 	return
 }

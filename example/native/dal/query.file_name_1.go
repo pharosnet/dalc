@@ -11,7 +11,7 @@ import (
 const userListByJoinTimeSQL = "SELECT `users`.`id`, `users`.`name`, `users`.`age`, `users`.`has_friends`, `users`.`join_time` FROM `ddd_test`.`users` WHERE `id` = ?"
 
 type UserListByJoinTimeRequest struct {
-	Id int64
+	Id []int64
 }
 
 type UserListByJoinTimeResult struct {

@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"github.com/pharosnet/dalc"
-
-	"github.com/foo/bar"
 )
 
 // ************* users_domain_events_list *************
@@ -13,32 +11,35 @@ const usersDomainEventsListSQL = "SELECT `ee`.`id` as `xxxx`, `ee`.`aggregate_na
 
 type UsersDomainEventsListRequest struct {
 	AggregateId string
-	EventId     string
+	EventIdList []string
 	EventName   string
 	Offset      int
 	Limit       int
 }
 
 type UsersDomainEventsListResult struct {
-	XXXX          int64         `json:"xxxx"`
-	AggregateName bar.SQLString `json:"aggregate_name"`
-	AggregateId   string        `json:"aggregate_id"`
-	EventName     string        `json:"event_name"`
-	EventId       string        `json:"event_id"`
+	XXXX          int64  `json:"xxxx"`
+	AggregateName string `json:"aggregate_name"`
+	AggregateId   string `json:"aggregate_id"`
+	EventName     string `json:"event_name"`
+	EventId       string `json:"event_id"`
 }
 
 type UsersDomainEventsListResultIterator func(ctx context.Context, result *UsersDomainEventsListResult) (err error)
 
 func UsersDomainEventsList(ctx dalc.PreparedContext, request *UsersDomainEventsListRequest, iterator UsersDomainEventsListResultIterator) (err error) {
 
+	querySQL := usersDomainEventsListSQL
 	args := dalc.NewArgs()
 	args.Arg(request.AggregateId)
-	args.Arg(request.EventId)
+
+	querySQL = dalc.ReplaceSQL(querySQL, "#XXXX#", dalc.NewTupleArgs(request.EventIdList))
+
 	args.Arg(request.EventName)
 	args.Arg(request.Offset)
 	args.Arg(request.Limit)
 
-	err = dalc.Query(ctx, usersDomainEventsListSQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
+	err = dalc.Query(ctx, querySQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
 
 		if rowErr != nil {
 			err = rowErr
