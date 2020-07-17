@@ -29,11 +29,13 @@ type {{ .Name }}Request struct { {{ range $key, $field := .RequestFields}}
 
 func {{ .Name }}(ctx dalc.PreparedContext, request *{{ .Name }}Request, iterator {{ .Name }}ResultIterator) (err error) {
 
+    querySQL := {{ .LowName }}SQL
     args := dalc.NewArgs() {{ range $key, $field := .RequestFields}}
-    args.Arg(request.{{ $field.Name }}){{ end }}
+    {{ if eq $field.Replaced true }}
+        querySQL = dalc.ReplaceSQL(querySQL, "{{$field.ReplaceKey}}", dalc.NewTupleArgs(request.{{$field.Name}}))
+    {{ else }}args.Arg(request.{{ $field.Name }}){{ end }}{{ end }}
 
-
-    err = dalc.Query(ctx, {{ .LowName }}SQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
+    err = dalc.Query(ctx, querySQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
 
         if rowErr != nil {
             err = rowErr

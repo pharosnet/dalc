@@ -30,9 +30,11 @@ type TableField struct {
 }
 
 type QueryField struct {
-	Name string
-	Type string
-	Tags string
+	Name       string
+	Type       string
+	Tags       string
+	Replaced   bool
+	ReplaceKey string
 }
 
 type GenerateQueryData struct {

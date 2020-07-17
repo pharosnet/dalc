@@ -3,7 +3,6 @@ package dal
 import (
 	"context"
 	"database/sql"
-	"github.com/foo/bar"
 	"github.com/pharosnet/dalc"
 )
 
@@ -16,11 +15,11 @@ const (
 
 type UsersDomainEventsRow struct {
 	Id          int64          `json:"id"`
-	AggName     bar.SQLString  `json:"agg_name"`
+	AggName     string         `json:"agg_name"`
 	AggregateId string         `json:"aggregate_id"`
 	EventName   string         `json:"event_name"`
 	EventId     string         `json:"event_id"`
-	EventTime   sql.NullTime   `json:"event_time"`
+	EventTime   dalc.MySQLTime `json:"event_time"`
 	EventData   dalc.NullBytes `json:"event_data"`
 }
 

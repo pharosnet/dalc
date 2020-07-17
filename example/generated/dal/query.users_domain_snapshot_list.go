@@ -29,10 +29,11 @@ type UsersDomainSnapshotListResultIterator func(ctx context.Context, result *Use
 
 func UsersDomainSnapshotList(ctx dalc.PreparedContext, request *UsersDomainSnapshotListRequest, iterator UsersDomainSnapshotListResultIterator) (err error) {
 
+	querySQL := usersDomainSnapshotListSQL
 	args := dalc.NewArgs()
 	args.Arg(request.Id)
 
-	err = dalc.Query(ctx, usersDomainSnapshotListSQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
+	err = dalc.Query(ctx, querySQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
 
 		if rowErr != nil {
 			err = rowErr
