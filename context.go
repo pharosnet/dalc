@@ -3,24 +3,28 @@ package dalc
 import (
 	"context"
 	"database/sql"
+	"errors"
 )
 
 const (
-	ctxKeyPreparable = "_preparable"
+	ctxKeyPreparedStatement = "_dalc_prepared_statement"
 )
 
-type Preparable interface {
+type PreparedStatement interface {
 	PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
 }
 
-func WithPreparable(parent context.Context, p Preparable) context.Context {
-	return context.WithValue(parent, ctxKeyPreparable, p)
+func WithPreparedStatement(parent context.Context, p PreparedStatement) PreparedContext {
+	return context.WithValue(parent, ctxKeyPreparedStatement, p)
 }
 
-func prepare(ctx context.Context) Preparable {
-	v := ctx.Value(ctxKeyPreparable)
+func prepare(ctx PreparedContext) PreparedStatement {
+	v := ctx.Value(ctxKeyPreparedStatement)
 	if v == nil {
+		panic(errors.New("the ctx is not dalc.PreparedContext"))
 		return nil
 	}
-	return v.(Preparable)
+	return v.(PreparedStatement)
 }
+
+type PreparedContext context.Context

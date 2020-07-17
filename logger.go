@@ -1,22 +1,18 @@
 package dalc
 
 type Log interface {
-	Printf(formatter string, args ...interface{})
+	Debugf(formatter string, args ...interface{})
 }
 
-func SetLog(logger Log) {
-	if logger == nil {
+func SetLog(v Log) {
+	if v == nil {
 		return
 	}
-	_logger = logger
+	logger = v
 }
 
-var _logger Log = nil
+var logger Log = nil
 
 func hasLog() bool {
-	return _logger != nil
-}
-
-func logf(formatter string, args ...interface{}) {
-	_logger.Printf(formatter, args...)
+	return logger != nil
 }
