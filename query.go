@@ -9,7 +9,7 @@ import (
 
 type QueryResultIterator func(ctx context.Context, rows *sql.Rows, rowErr error) (err error)
 
-func Query(ctx context.Context, query string, args *Args, iterator QueryResultIterator) (err error) {
+func Query(ctx PreparedContext, query string, args *Args, iterator QueryResultIterator) (err error) {
 	if ctx == nil {
 		err = errors.New("query failed, context is empty")
 		return

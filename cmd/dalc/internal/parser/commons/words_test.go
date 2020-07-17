@@ -9,5 +9,5 @@ func TestWordsContainsAll(t *testing.T) {
 	words := []string{"abc", "ddd", "---", "123"}
 	has := commons.WordsContainsAll(words, "---", "ddd")
 	t.Log(has)
-	t.Log( commons.WordsContainsAll(words, "---", "xx"))
+	t.Log(commons.WordsContainsAll(words, "---", "xx"))
 }

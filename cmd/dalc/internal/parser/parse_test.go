@@ -16,7 +16,7 @@ func TestParseMySql(t *testing.T) {
 
 	dialect := "mysql"
 	schemaPath := filepath.Join(pwd, "mysql/schema.sql")
-	queryPath :=  filepath.Join(pwd, "mysql/query_select.sql")
+	queryPath := filepath.Join(pwd, "mysql/query_select.sql")
 
 	tables, queries, err := parser.Parse(dialect, schemaPath, queryPath)
 	if err != nil {
@@ -29,7 +29,7 @@ func TestParseMySql(t *testing.T) {
 		t.Log("table", table.FullName, table.Schema, table.Name, table.GoName)
 		t.Log("\t", "pk", table.PKs)
 		for _, column := range table.Columns {
-			t.Log("\t", "column",column.GoName, column.Name, column.Type, column.DefaultValue, column.GoType, column.Null, column.AutoIncrement)
+			t.Log("\t", "column", column.GoName, column.Name, column.Type, column.DefaultValue, column.GoType, column.Null, column.AutoIncrement)
 		}
 	}
 	t.Log("------")
@@ -52,7 +52,7 @@ func TestParseMySql(t *testing.T) {
 		}
 		t.Log("\t", "tables")
 		for _, table := range query.TableList {
-			t.Log("\t\t", table.Schema, table.Table, table.NameAs)
+			t.Log("\t\t", table.Schema, table.Table, table.NameAs, table.Ref)
 		}
 		t.Log("\t", "conds")
 		for _, expr := range query.CondExprList.ExprList {

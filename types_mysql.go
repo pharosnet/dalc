@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+func MySqlTcpDSN(name string, password string, address string, schema string, parseTime bool, loc string) string {
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s)/%s?parseTime=%v&loc=%s",
+		name, password, address, schema, parseTime, loc,
+	)
+}
+
 // name:password@tcp(ip:host)/schema?parseTime=true&loc=Local
 type MySQLTime struct {
 	Time  time.Time

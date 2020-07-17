@@ -9,7 +9,6 @@ import (
 
 func parseQueryInsert(query *entry.Query, stmt *sqlparser.Insert) (err error) {
 
-
 	query.TableList = append(query.TableList, &entry.QueryTable{
 		Schema: stmt.Table.Qualifier.CompliantName(),
 		Table:  stmt.Table.Name.CompliantName(),
@@ -18,7 +17,7 @@ func parseQueryInsert(query *entry.Query, stmt *sqlparser.Insert) (err error) {
 
 	for _, column := range stmt.Columns {
 		query.SelectExprList.ExprList = append(query.SelectExprList.ExprList, &entry.QueryExpr{
-			Table:               entry.QueryTable{
+			Table: entry.QueryTable{
 				Schema: stmt.Table.Qualifier.CompliantName(),
 				Table:  stmt.Table.Name.CompliantName(),
 				NameAs: "",
@@ -47,11 +46,11 @@ func parseQueryInsert(query *entry.Query, stmt *sqlparser.Insert) (err error) {
 					err = exprs.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
 						switch node.(type) {
 						case *sqlparser.SQLVal:
-							idx ++
+							idx++
 							val := node.(*sqlparser.SQLVal)
 							if val.Type == sqlparser.ValArg {
 								query.CondExprList.ExprList = append(query.CondExprList.ExprList, &entry.CondExpr{
-									Table:               entry.QueryTable{
+									Table: entry.QueryTable{
 										Schema: stmt.Table.Qualifier.CompliantName(),
 										Table:  stmt.Table.Name.CompliantName(),
 										NameAs: "",
@@ -87,7 +86,6 @@ func parseQueryInsert(query *entry.Query, stmt *sqlparser.Insert) (err error) {
 		err = fmt.Errorf("parse query insert failed, found insert rows over columns, in \n%s", query.Sql)
 		return
 	}
-
 
 	return
 }

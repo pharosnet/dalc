@@ -34,12 +34,12 @@ func (ct ColumnType) GoType() (goType *GoType, err error) {
 }
 
 type Column struct {
-	Name         string
-	Type         ColumnType
-	Null         bool
-	GoName       string
-	GoType       *GoType
-	DefaultValue string
+	Name          string
+	Type          ColumnType
+	Null          bool
+	GoName        string
+	GoType        *GoType
+	DefaultValue  string
 	AutoIncrement bool
 }
 
@@ -86,7 +86,7 @@ func init() {
 	ColumnTypeMappings = append(ColumnTypeMappings,
 		&ColumnTypeMapping{
 			ColumnType: TINYINT,
-			GoType:     NewGoType("sql.NullInt32"),
+			GoType:     NewGoType("database/sql.NullInt32"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -96,7 +96,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: SMALLINT,
-			GoType:     NewGoType("sql.NullInt32"),
+			GoType:     NewGoType("database/sql.NullInt32"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -106,7 +106,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: MEDIUMINT,
-			GoType:     NewGoType("sql.NullInt32"),
+			GoType:     NewGoType("database/sql.NullInt32"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -116,7 +116,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: INT,
-			GoType:     NewGoType("sql.NullInt32"),
+			GoType:     NewGoType("database/sql.NullInt32"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -126,7 +126,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: INTEGER,
-			GoType:     NewGoType("sql.NullInt32"),
+			GoType:     NewGoType("database/sql.NullInt32"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -136,17 +136,17 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: BIGINT,
-			GoType:     NewGoType("sql.NullInt64"),
+			GoType:     NewGoType("database/sql.NullInt64"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
 			ColumnType: BIGINT,
-			GoType:     NewGoType("int"),
+			GoType:     NewGoType("int64"),
 			NullAble:   false,
 		},
 		&ColumnTypeMapping{
 			ColumnType: FLOAT,
-			GoType:     NewGoType("sql.NullFloat64"),
+			GoType:     NewGoType("database/sql.NullFloat64"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -156,7 +156,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: DOUBLE,
-			GoType:     NewGoType("sql.NullFloat64"),
+			GoType:     NewGoType("database/sql.NullFloat64"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -166,7 +166,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: DECIMAL,
-			GoType:     NewGoType("sql.NullFloat64"),
+			GoType:     NewGoType("database/sql.NullFloat64"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -176,7 +176,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: BOOLEAN,
-			GoType:     NewGoType("sql.NullBool"),
+			GoType:     NewGoType("database/sql.NullBool"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -187,7 +187,7 @@ func init() {
 		// DATE, TIME, YEAR, DATETIME, c
 		&ColumnTypeMapping{
 			ColumnType: DATE,
-			GoType:     NewGoType("sql.NullTime"),
+			GoType:     NewGoType("database/sql.NullTime"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -197,7 +197,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: TIME,
-			GoType:     NewGoType("sql.NullTime"),
+			GoType:     NewGoType("database/sql.NullTime"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -207,7 +207,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: YEAR,
-			GoType:     NewGoType("sql.NullTime"),
+			GoType:     NewGoType("database/sql.NullTime"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -217,7 +217,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: DATETIME,
-			GoType:     NewGoType("sql.NullTime"),
+			GoType:     NewGoType("database/sql.NullTime"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -227,7 +227,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: TIMESTAMP,
-			GoType:     NewGoType("sql.NullTime"),
+			GoType:     NewGoType("database/sql.NullTime"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -238,7 +238,7 @@ func init() {
 		// CHAR, NCHAR, VARCHAR, NVARCHAR
 		&ColumnTypeMapping{
 			ColumnType: CHAR,
-			GoType:     NewGoType("sql.NullString"),
+			GoType:     NewGoType("database/sql.NullString"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -248,7 +248,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: NCHAR,
-			GoType:     NewGoType("sql.NullString"),
+			GoType:     NewGoType("database/sql.NullString"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -258,7 +258,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: VARCHAR,
-			GoType:     NewGoType("sql.NullString"),
+			GoType:     NewGoType("database/sql.NullString"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{
@@ -268,7 +268,7 @@ func init() {
 		},
 		&ColumnTypeMapping{
 			ColumnType: NVARCHAR,
-			GoType:     NewGoType("sql.NullString"),
+			GoType:     NewGoType("database/sql.NullString"),
 			NullAble:   true,
 		},
 		&ColumnTypeMapping{

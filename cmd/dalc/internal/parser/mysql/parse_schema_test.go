@@ -34,7 +34,7 @@ func TestParseMySQLSchema(t *testing.T) {
 		t.Log("table", table.FullName, table.Schema, table.Name, table.GoName)
 		t.Log("\t", "pk", table.PKs)
 		for _, column := range table.Columns {
-			t.Log("\t", "column",column.GoName, column.Name, column.Type, column.DefaultValue, column.GoType, column.Null, column.AutoIncrement)
+			t.Log("\t", "column", column.GoName, column.Name, column.Type, column.DefaultValue, column.GoType, column.Null, column.AutoIncrement)
 		}
 	}
 }

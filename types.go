@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 type NullBytes struct {
@@ -64,4 +65,33 @@ func (n *NullJson) Marshal(v interface{}) (err error) {
 	n.Valid = true
 	n.Bytes = p
 	return
+}
+
+func NowTime() *NullTime {
+	return &NullTime{time.Time{}, true}
+}
+
+type NullTime struct {
+	Time  time.Time
+	Valid bool
+}
+
+func (n *NullTime) Scan(value interface{}) error {
+	if value == nil {
+		n.Time, n.Valid = time.Time{}, false
+		return nil
+	}
+	switch value.(type) {
+	case time.Time:
+		n.Time = value.(time.Time)
+		n.Valid = true
+	}
+	return nil
+}
+
+func (n NullTime) Value() (driver.Value, error) {
+	if !n.Valid {
+		return nil, nil
+	}
+	return n.Time, nil
 }

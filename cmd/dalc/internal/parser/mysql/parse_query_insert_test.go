@@ -65,4 +65,3 @@ func TestParseMySQLQueryInsert(t *testing.T) {
 	}
 
 }
-

@@ -46,7 +46,10 @@ func (lines *Lines) CurrentLineWords() []string {
 func (lines *Lines) Remain() string {
 	buf := bytes.NewBufferString("")
 	for i := lines.idx + 1; i < lines.size; i++ {
-		buf.WriteString(lines.values[i])
+		line := strings.ReplaceAll(lines.values[i], "\t", " ")
+		line = strings.TrimSpace(line)
+		buf.WriteString(line)
+		buf.WriteString(" ")
 	}
 	return buf.String()
 }

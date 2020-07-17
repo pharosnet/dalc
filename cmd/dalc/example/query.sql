@@ -1,6 +1,4 @@
--- :w
--- name: CreateDomainEvent
--- result: id
+-- name: users_domain_events_insert
 INSERT INTO `ddd_test`.`users_domain_events`
 (`id`,
 `aggregate_name`,
@@ -12,8 +10,7 @@ INSERT INTO `ddd_test`.`users_domain_events`
 VALUES
 (?,?,?,?,?,?,?);
 
--- :w
--- name: ModifyDomainEvent
+-- name: users_domain_events_update
 UPDATE `ddd_test`.`users_domain_events`
 SET
 `aggregate_name` = ?,
@@ -24,13 +21,10 @@ SET
 `event_data` = ?
 WHERE `id` = ?;
 
--- :w
--- name: DeleteDomainEvent
+-- name: users_domain_events_delete
 DELETE FROM `ddd_test`.`users_domain_events` WHERE `id` = ?;
 
--- :r
--- name: GetDomainEvent
--- ref: `ddd_test`.`users_domain_events`
+-- name: users_domain_events_get
 SELECT `users_domain_events`.`id`,
     `users_domain_events`.`aggregate_name`,
     `users_domain_events`.`aggregate_id`,
@@ -40,9 +34,7 @@ SELECT `users_domain_events`.`id`,
     `users_domain_events`.`event_data`
 FROM `ddd_test`.`users_domain_events`  WHERE `id` = ?;
 
--- :r
--- name: ListDomainEvents
--- ref: `ddd_test`.`users_domain_events`
+-- name: users_domain_events_list
 SELECT `users_domain_events`.`id`,
     `users_domain_events`.`aggregate_name`,
     `users_domain_events`.`aggregate_id`,
@@ -52,13 +44,7 @@ SELECT `users_domain_events`.`id`,
     `users_domain_events`.`event_data`
 FROM `ddd_test`.`users_domain_events`  WHERE `aggregate_id` = ? ORDER BY `id` DESC LIMIT ? OFFSET ?;
 
--- :r
--- name: ListDomainEventsXX
--- result:
--- aggregate_name sql.NullString
--- aggregate_id sql.NullString
--- event_name sql.NullString
--- event_id sql.NullString
+-- name: users_domain_events_list_v2
 SELECT `users_domain_events`.`id`,
     `users_domain_events`.`aggregate_name`,
     `users_domain_events`.`aggregate_id`,

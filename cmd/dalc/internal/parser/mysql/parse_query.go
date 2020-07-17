@@ -72,17 +72,16 @@ func ParseMySQLQuery(content string) (queries []*entry.Query, err error) {
 }
 
 func parseMySQLQuery0(name string, content string) (query *entry.Query, err error) {
-
 	querySQL, _ := sqlparser.SplitTrailingComments(content)
 	stmt, parseErr := sqlparser.Parse(strings.ToUpper(querySQL))
 	if parseErr != nil {
-		err = parseErr
+		err = fmt.Errorf("parse query failed, %v, sql:\n%s", parseErr, querySQL)
 		return
 	}
 	query = entry.NewQuery()
 	query.RawName = strings.ToLower(name)
 	query.Name = commons.SnakeToCamel(strings.ToLower(name))
-	query.Sql = querySQL
+	query.Sql = strings.ReplaceAll(querySQL, "\t", " ")
 
 	switch stmt.(type) {
 	case sqlparser.SelectStatement:
@@ -101,6 +100,9 @@ func parseMySQLQuery0(name string, content string) (query *entry.Query, err erro
 		err = fmt.Errorf("parse query failed, %v is unsupported", reflect.TypeOf(stmt))
 	}
 
+	if err != nil {
+		err = fmt.Errorf("parse query failed, %v, sql:\n%s", err, querySQL)
+	}
 	query.Fill()
 
 	return

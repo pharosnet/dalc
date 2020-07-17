@@ -121,6 +121,7 @@ type QueryTable struct {
 	Schema string
 	Table  string
 	NameAs string
+	Ref    *Table
 }
 
 type CondExpr struct {

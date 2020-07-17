@@ -1,0 +1,64 @@
+package  {{ .Package }}
+
+import (
+    "context"
+    "database/sql"
+    "github.com/pharosnet/dalc"
+    {{ range $key, $value := .Imports }}
+        "{{ $key }}"
+    {{ end }}
+)
+
+// ************* {{ .RawName }} *************
+const {{ .LowName }}SQL = "{{ .QuerySQL }}"
+
+type {{ .Name }}Request struct { {{ range $key, $field := .RequestFields}}
+    {{ $field.Name }} {{ $field.Type }}{{ end }}
+}
+
+{{ if eq .IsTable true }}
+    type {{ .Name }}ResultIterator func(ctx context.Context, result *{{ .Table.GoName }}) (err error)
+{{ else }}
+    type {{ .Name }}Result struct { {{ range $key, $field := .ResultFields}}
+        {{ $field.Name }} {{ $field.Type }} {{ $field.Tags }}{{ end }}
+    }
+
+    type {{ .Name }}ResultIterator func(ctx context.Context, result *{{ .Name }}Result) (err error)
+{{ end }}
+
+
+func {{ .Name }}(ctx dalc.PreparedContext, request *{{ .Name }}Request, iterator {{ .Name }}ResultIterator) (err error) {
+
+    args := dalc.NewArgs() {{ range $key, $field := .RequestFields}}
+    args.Arg(request.{{ $field.Name }}){{ end }}
+
+
+    err = dalc.Query(ctx, {{ .LowName }}SQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
+
+        if rowErr != nil {
+            err = rowErr
+            return
+        }
+
+        {{ if eq .IsTable true }}
+            result := &{{ .Table.GoName }}{}
+            scanErr := result.scanSQLRow(rows)
+        {{ else }}
+            result := &{{ .Name }}Result{}
+            scanErr := rows.Scan( {{ range $key, $field := .ResultFields}}
+                &result.{{ $field.Name }},{{ end }}
+            )
+        {{ end }}
+
+        if scanErr != nil {
+            err = scanErr
+            return
+        }
+
+        err = iterator(ctx, result)
+
+        return
+    })
+
+    return
+}

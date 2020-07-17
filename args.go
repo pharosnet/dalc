@@ -6,8 +6,8 @@ var emptyArgs = &Args{
 	values: make([]interface{}, 0, 1),
 }
 
-func NewArgs() Args {
-	return Args{
+func NewArgs() *Args {
+	return &Args{
 		values: make([]interface{}, 0, 1),
 	}
 }
@@ -18,6 +18,11 @@ type Args struct {
 
 func (a *Args) Arg(v interface{}) *Args {
 	a.values = append(a.values, v)
+	return a
+}
+
+func (a *Args) Merge(args *Args) *Args {
+	a.values = append(a.values, args.values...)
 	return a
 }
 

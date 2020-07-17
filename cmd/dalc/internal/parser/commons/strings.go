@@ -43,6 +43,27 @@ func CamelToSnake(s string) string {
 	return result
 }
 
+// CamelToSnake converts a given string to snake case
+func CamelToSnakeLow(s string) string {
+	rs := []rune(s)
+	ss := make([]rune, 0, 1)
+	prevUpper := false
+	for i := 0; i < len(rs); i++ {
+		if unicode.IsUpper(rs[i]) {
+			if i > 0 && !prevUpper {
+				ss = append(ss, '_')
+			}
+			prevUpper = true
+			ss = append(ss, unicode.ToLower(rs[i]))
+		} else {
+			prevUpper = false
+			ss = append(ss, rs[i])
+		}
+	}
+
+	return string(ss)
+}
+
 func snakeToCamel(s string, upperCase bool) string {
 	var result string
 

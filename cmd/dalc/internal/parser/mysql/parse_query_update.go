@@ -50,7 +50,7 @@ func parseQueryUpdate(query *entry.Query, stmt *sqlparser.Update) (err error) {
 		}
 		if isArg {
 			query.SelectExprList.ExprList = append(query.SelectExprList.ExprList, &entry.QueryExpr{
-				Table:               entry.QueryTable{
+				Table: entry.QueryTable{
 					Schema: schema,
 					Table:  tableName,
 					NameAs: nameAs,

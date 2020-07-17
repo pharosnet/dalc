@@ -4,6 +4,15 @@ import "fmt"
 
 func QueryFill(tables []*Table, queries0 []*Query) (queries []*Query, err error) {
 	for _, query := range queries0 {
+
+		for _, queryTable := range query.TableList {
+			for _, table := range tables {
+				if queryTable.Schema == table.Schema && queryTable.Table == table.Name {
+					queryTable.Ref = table
+				}
+			}
+		}
+
 		for _, expr := range query.SelectExprList.ExprList {
 			expr.BuildName()
 			if expr.Name == "" {

@@ -31,7 +31,7 @@ func (*ValuesFuncExpr) iExpr()  {}
 func (*ConvertExpr) iExpr()     {}
 func (*MatchExpr) iExpr()       {}
 func (*GroupConcatExpr) iExpr() {}
- */
+*/
 func parseExpr(query *entry.Query, expr sqlparser.Expr) (queryExpr *entry.QueryExpr, err error) {
 	//queryExpr = &entry.QueryExpr{
 	//	Table:               nil,
