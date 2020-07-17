@@ -13,10 +13,11 @@ type UsersDomainEventsDeleteRequest struct {
 
 func UsersDomainEventsDelete(ctx dalc.PreparedContext, request *UsersDomainEventsDeleteRequest) (affected int64, err error) {
 
+	querySQL := usersDomainEventsDeleteSQL
 	args := dalc.NewArgs()
 	args.Arg(request.Id)
 
-	affected, err = dalc.Execute(ctx, usersDomainEventsDeleteSQL, args)
+	affected, err = dalc.Execute(ctx, querySQL, args)
 
 	return
 }

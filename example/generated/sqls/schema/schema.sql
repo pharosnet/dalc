@@ -4,11 +4,11 @@ USE `ddd_test`;
 CREATE TABLE `users_domain_events`
 (
     `id`             bigint       NOT NULL AUTO_INCREMENT,
-    `aggregate_name` varchar(255) NOT NULL, -- name: AggName ref: github.com/foo/bar.SQLString
+    `aggregate_name` varchar(255) NOT NULL, -- name: AggName
     `aggregate_id`   varchar(255) NOT NULL,
     `event_name`     varchar(255) NOT NULL,
     `event_id`       varchar(63)  NOT NULL,
-    `event_time`     datetime(6) DEFAULT NULL,
+    `event_time`     datetime(6) DEFAULT NULL, -- ref: github.com/pharosnet/dalc.MySQLTime
     `event_data`     text,
     PRIMARY KEY (`id`),
     UNIQUE KEY `users_ix_event_id` (`event_id`),

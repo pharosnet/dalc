@@ -69,10 +69,19 @@ func makeGenerateQueryData(packageName string, jsonTag bool, queries []*entry.Qu
 
 		data.RequestFields = make([]*QueryField, 0, 1)
 		for _, expr := range query.CondExprList.ExprList {
+			name := expr.Name
+			replaced := expr.PlaceHolder != ""
+			fieldType := expr.GoType.Name
+			if replaced {
+				fieldType = fmt.Sprintf("[]%s", fieldType)
+				name = fmt.Sprintf("%sList", name)
+			}
 			data.RequestFields = append(data.RequestFields, &QueryField{
-				Name: expr.Name,
-				Type: expr.GoType.Name,
-				Tags: "",
+				Name:       name,
+				Type:       fieldType,
+				Tags:       "",
+				Replaced:   replaced,
+				ReplaceKey: expr.PlaceHolder,
 			})
 			if data.Exec {
 				if expr.GoType.Package != "" && expr.GoType.Package != "github.com/pharosnet/dalc" {
@@ -166,11 +175,13 @@ type {{ .Name }}Request struct { {{ range $key, $field := .RequestFields}}
 
 func {{ .Name }}(ctx dalc.PreparedContext, request *{{ .Name }}Request, iterator {{ .Name }}ResultIterator) (err error) {
 
+    querySQL := {{ .LowName }}SQL
     args := dalc.NewArgs() {{ range $key, $field := .RequestFields}}
-    args.Arg(request.{{ $field.Name }}){{ end }}
+    {{ if eq $field.Replaced true }}
+        querySQL = dalc.ReplaceSQL(querySQL, "{{$field.ReplaceKey}}", dalc.NewTupleArgs(request.{{$field.Name}}))
+    {{ else }}args.Arg(request.{{ $field.Name }}){{ end }}{{ end }}
 
-
-    err = dalc.Query(ctx, {{ .LowName }}SQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
+    err = dalc.Query(ctx, querySQL, args, func(ctx context.Context, rows *sql.Rows, rowErr error) (err error) {
 
         if rowErr != nil {
             err = rowErr
@@ -214,16 +225,21 @@ import (
 // ************* {{ .RawName }} *************
 const {{ .LowName }}SQL = "{{ .QuerySQL }}"
 
-type {{ .Name }}Request struct { {{ range $key, $field := .RequestFields}}
+type {{ .Name }}Request struct { {{ range $key, $field := .ResultFields}}
+    {{ $field.Name }} {{ $field.Type }}{{ end }}{{ range $key, $field := .RequestFields}}
     {{ $field.Name }} {{ $field.Type }}{{ end }}
 }
 
 func {{ .Name }}(ctx dalc.PreparedContext, request *{{ .Name }}Request) (affected int64, err error) {
 
-    args := dalc.NewArgs() {{ range $key, $field := .RequestFields}}
-    args.Arg(request.{{ $field.Name }}){{ end }}
+    querySQL := {{ .LowName }}SQL
+    args := dalc.NewArgs() {{ range $key, $field := .ResultFields}}
+    args.Arg(request.{{ $field.Name }}){{ end }}{{ range $key, $field := .RequestFields}}
+    {{ if eq $field.Replaced true }}
+        querySQL = dalc.ReplaceSQL(querySQL, "{{$field.ReplaceKey}}", dalc.NewTupleArgs(request.{{$field.Name}}))
+    {{ else }}args.Arg(request.{{ $field.Name }}){{ end }}{{ end }}
 
-    affected, err = dalc.Execute(ctx, {{ .LowName }}SQL, args)
+    affected, err = dalc.Execute(ctx, querySQL, args)
 
     return
 }
