@@ -44,7 +44,7 @@ func makeGenerateTableData(packageName string, jsonTag bool, tables []*entry.Tab
 		data := &GenerateTableData{}
 		data.Package = packageName
 		if table.Schema != "" {
-			data.RawName = fmt.Sprintf("%s_%s", strings.ToLower(table.Schema), strings.ToLower(table.Name))
+			data.RawName = fmt.Sprintf("%s.%s", strings.ToLower(table.Schema), strings.ToLower(table.Name))
 		} else {
 			data.RawName = fmt.Sprintf("%s", strings.ToLower(table.Name))
 		}
