@@ -1,4 +1,4 @@
-module github.com/pharosnet/dalc/cmd/dalc
+module github.com/pharosnet/dalc/cmd/dalc/v2
 
 go 1.14
 

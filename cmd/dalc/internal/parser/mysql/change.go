@@ -1,6 +1,6 @@
 package mysql
 
-import "github.com/pharosnet/dalc/cmd/dalc/internal/entry"
+import "github.com/pharosnet/dalc/cmd/dalc/v2/internal/entry"
 
 const (
 	TableDropChangeKind    = "DROP TABLE"

@@ -3,8 +3,8 @@ package generates
 import (
 	"bytes"
 	"fmt"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/entry"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/commons"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/entry"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/parser/commons"
 	"strings"
 	"text/template"
 )
@@ -163,7 +163,7 @@ type {{ .Name }}Request struct { {{ range $key, $field := .RequestFields}}
 }
 
 {{ if eq .IsTable true }}
-    type {{ .Name }}ResultIterator func(ctx context.Context, result *{{ .Table.GoName }}) (err error)
+    type {{ .Name }}ResultIterator func(ctx context.Context, result *{{ .Table.GoName }}Row) (err error)
 {{ else }}
     type {{ .Name }}Result struct { {{ range $key, $field := .ResultFields}}
         {{ $field.Name }} {{ $field.Type }} {{ $field.Tags }}{{ end }}
@@ -189,7 +189,7 @@ func {{ .Name }}(ctx dalc.PreparedContext, request *{{ .Name }}Request, iterator
         }
 
         {{ if eq .IsTable true }}
-            result := &{{ .Table.GoName }}{}
+            result := &{{ .Table.GoName }}Row{}
             scanErr := result.scanSQLRow(rows)
         {{ else }}
             result := &{{ .Name }}Result{}

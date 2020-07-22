@@ -14,7 +14,7 @@ type BusinessGroupGetByCodeRequest struct {
 	Code string
 }
 
-type BusinessGroupGetByCodeResultIterator func(ctx context.Context, result *BusinessGroup) (err error)
+type BusinessGroupGetByCodeResultIterator func(ctx context.Context, result *BusinessGroupRow) (err error)
 
 func BusinessGroupGetByCode(ctx dalc.PreparedContext, request *BusinessGroupGetByCodeRequest, iterator BusinessGroupGetByCodeResultIterator) (err error) {
 
@@ -29,7 +29,7 @@ func BusinessGroupGetByCode(ctx dalc.PreparedContext, request *BusinessGroupGetB
 			return
 		}
 
-		result := &BusinessGroup{}
+		result := &BusinessGroupRow{}
 		scanErr := result.scanSQLRow(rows)
 
 		if scanErr != nil {
