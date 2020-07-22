@@ -11,7 +11,7 @@ Database access layer for go.
 
 ## Usage
 
-`go get -u github.com/pharosnet/dalc`
+`go get -u github.com/pharosnet/dalc/v2`
 
 
 ```go
