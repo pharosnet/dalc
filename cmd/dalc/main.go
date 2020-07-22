@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/generates"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/logs"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/parser"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/generates"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/logs"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/parser"
 	"github.com/urfave/cli/v2"
 	"os"
 	"path"

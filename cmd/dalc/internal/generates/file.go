@@ -2,7 +2,7 @@ package generates
 
 import (
 	"fmt"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/logs"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/logs"
 	"go/format"
 	"io/ioutil"
 	"os"

@@ -1,7 +1,7 @@
 package generates
 
 import (
-	"github.com/pharosnet/dalc/cmd/dalc/internal/entry"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/entry"
 	"path/filepath"
 )
 

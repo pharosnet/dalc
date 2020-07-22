@@ -2,8 +2,8 @@ package mysql
 
 import (
 	"fmt"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/entry"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/commons"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/entry"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/parser/commons"
 	"strings"
 )
 

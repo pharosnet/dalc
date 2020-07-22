@@ -2,10 +2,10 @@ package parser
 
 import (
 	"fmt"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/entry"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/files"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/logs"
-	"github.com/pharosnet/dalc/cmd/dalc/internal/parser/mysql"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/entry"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/files"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/logs"
+	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/parser/mysql"
 )
 
 func Parse(dialect string, schemaPath string, queryPath string) (tables []*entry.Table, queries []*entry.Query, err error) {

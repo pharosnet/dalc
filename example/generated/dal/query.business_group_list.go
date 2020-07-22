@@ -15,7 +15,7 @@ type BusinessGroupListRequest struct {
 	Limit  int
 }
 
-type BusinessGroupListResultIterator func(ctx context.Context, result *BusinessGroup) (err error)
+type BusinessGroupListResultIterator func(ctx context.Context, result *BusinessGroupRow) (err error)
 
 func BusinessGroupList(ctx dalc.PreparedContext, request *BusinessGroupListRequest, iterator BusinessGroupListResultIterator) (err error) {
 
@@ -31,7 +31,7 @@ func BusinessGroupList(ctx dalc.PreparedContext, request *BusinessGroupListReque
 			return
 		}
 
-		result := &BusinessGroup{}
+		result := &BusinessGroupRow{}
 		scanErr := result.scanSQLRow(rows)
 
 		if scanErr != nil {
