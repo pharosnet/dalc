@@ -1,36 +1,51 @@
-USE `ddd_test`;
+USE `applications`;
 
--- name: users_domain_events
-CREATE TABLE `users_domain_events`
+-- name: business_group
+CREATE TABLE `applications`.`business_group`
 (
-    `id`             bigint       NOT NULL AUTO_INCREMENT,
-    `aggregate_name` varchar(255) NOT NULL, -- name: AggName
-    `aggregate_id`   varchar(255) NOT NULL,
-    `event_name`     varchar(255) NOT NULL,
-    `event_id`       varchar(63)  NOT NULL,
-    `event_time`     datetime(6) DEFAULT NULL, -- ref: github.com/pharosnet/dalc.MySQLTime
-    `event_data`     text,
+    `id`          varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL,
+    `create_by`   varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL,
+    `create_at`   datetime(6)                                            NOT NULL,
+    `modify_by`   varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL,
+    `modify_at`   datetime(6)                                            NOT NULL,
+    `delete_by`   varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL,
+    `delete_at`   datetime(6)                                            NOT NULL,
+    `version`     bigint                                                 NOT NULL,
+    `code`        varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL,
+    `name`        varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL,
+    `description` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `users_ix_event_id` (`event_id`),
-    KEY `users_ix_aggname` (`aggregate_name`),
-    KEY `users_ix_aggid` (`aggregate_id`),
-    KEY `users_ix_event_name` (`event_name`),
-    KEY `users_ix_event_time` (`event_time` DESC)
+    UNIQUE KEY `business_group_idx_biz_code` (`code`) USING BTREE,
+    KEY `business_group_idx_biz_name` (`name`) USING BTREE,
+    KEY `business_group_idx_create` (`create_by`, `create_at`) USING BTREE,
+    KEY `business_group_idx_modify` (`modify_by`, `modify_at`) USING BTREE,
+    KEY `business_group_idx_delete_by` (`delete_by`) USING BTREE,
+    KEY `business_group_idx_delete_at` (`delete_at`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci;
+  COLLATE = utf8mb4_bin;
 
-CREATE TABLE `users_domain_snapshot`
+-- name: business_code
+CREATE TABLE `applications`.`business_code`
 (
-    `id`             bigint NOT NULL AUTO_INCREMENT,
-    `aggregate_name` varchar(255) DEFAULT NULL,
-    `aggregate_id`   varchar(63)  DEFAULT NULL,
-    `last_event_id`  varchar(63)  DEFAULT NULL,
-    `snapshot_data`  text,
+    `id`             varchar(63) COLLATE utf8mb4_bin  NOT NULL,
+    `create_by`      varchar(63) COLLATE utf8mb4_bin  NOT NULL,
+    `create_at`      datetime(6)                      NOT NULL,
+    `modify_by`      varchar(63) COLLATE utf8mb4_bin  NOT NULL,
+    `modify_at`      datetime(6)                      NOT NULL,
+    `delete_by`      varchar(63) COLLATE utf8mb4_bin  NOT NULL,
+    `delete_at`      datetime(6)                      NOT NULL,
+    `version`        bigint                           NOT NULL,
+    `code`  varchar(63) COLLATE utf8mb4_bin  NOT NULL,
+    `group` varchar(63) COLLATE utf8mb4_bin  NOT NULL,
+    `description`    varchar(512) COLLATE utf8mb4_bin NOT NULL,
+    `text_code`      varchar(63) COLLATE utf8mb4_bin  NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `users_ix_snapshot_last_eid` (`last_event_id`),
-    KEY `users_ix_snapshot_aggname` (`aggregate_name`),
-    KEY `users_ix_snapshot_aggid` (`aggregate_id`)
+    UNIQUE KEY `business_code_idx_biz_code_group` (`code`, `group`) USING BTREE,
+    KEY `business_code_idx_create` (`create_by`, `create_at`) USING BTREE,
+    KEY `business_code_idx_modify` (`modify_by`, `modify_at`) USING BTREE,
+    KEY `business_code_idx_delete_by` (`delete_by`) USING BTREE,
+    KEY `business_code_idx_delete_at` (`delete_at`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci;
+  COLLATE = utf8mb4_bin;
