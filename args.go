@@ -73,9 +73,9 @@ func ReplaceSQL(query string, key string, args TupleArgs) string {
 		case int64:
 			buf.WriteString(fmt.Sprintf("%d", arg.(int64)))
 		case float32:
-			buf.WriteString(fmt.Sprintf("%d", arg.(float32)))
+			buf.WriteString(fmt.Sprintf("%f", arg.(float32)))
 		case float64:
-			buf.WriteString(fmt.Sprintf("%d", arg.(float64)))
+			buf.WriteString(fmt.Sprintf("%f", arg.(float64)))
 		default:
 			panic(fmt.Errorf("dalc replace sql failed, unsupport arg type, %v, %s", reflect.TypeOf(arg), query))
 		}
