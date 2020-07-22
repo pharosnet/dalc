@@ -4,7 +4,7 @@ package {{ .Package }}
 import (
     "context"
     "database/sql"
-    "github.com/pharosnet/dalc"
+    "github.com/pharosnet/dalc/v2"
     {{ range $key, $value := .Imports }}"{{ $key }}"{{ end }}
 )
 

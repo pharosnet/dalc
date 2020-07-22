@@ -1,64 +1,76 @@
--- name: users_domain_events_list
-SELECT `ee`.`id` as `xxxx`,
-       `ee`.`aggregate_name`,
-       `users_domain_events`.`aggregate_id`,
-       `ee`.`event_name`,
-       `ee`.`event_id`
-FROM `ddd_test`.`users_domain_events` as `ee`
-WHERE `ee`.`aggregate_id` = ?
-  AND `ee`.`aggregate_name` = 'DD'
-  AND `ee`.`event_id` IN ('#xxxx#')
-  and `ee`.`event_name` between ? and ?
-ORDER BY `ee`.`id` DESC LIMIT ? OFFSET ?;
+-- name: business_code_get_by_group_and_code
+SELECT `business_code`.`id`,
+       `business_code`.`create_by`,
+       `business_code`.`create_at`,
+       `business_code`.`modify_by`,
+       `business_code`.`modify_at`,
+       `business_code`.`delete_by`,
+       `business_code`.`delete_at`,
+       `business_code`.`version`,
+       `business_code`.`code`,
+       `business_code`.`group`,
+       `business_code`.`description`,
+       `business_code`.`text_code`
+FROM `applications`.`business_code`
+WHERE `group` = ?
+  AND `code` = ?;
 
--- name: users_domain_snapshot_list
-SELECT `users_domain_snapshot`.`id`,
-       `users_domain_snapshot`.`aggregate_name`, /* dd */
-       `users_domain_snapshot`.`aggregate_id`,
-       `users_domain_snapshot`.`last_event_id`,
-       `users_domain_snapshot`.`snapshot_data`,
-       (`users_domain_snapshot`.`id` > 1)                                                          as `over`,
-       (select count(`id`)
-        from `ddd_test`.`users_domain_events`
-        where `users_domain_events`.`aggregate_id` = `users_domain_snapshot`.`aggregate_id`)       as `count`,
-       (select sum(`id`)
-        from `ddd_test`.`users_domain_events`
-        where `users_domain_events`.`aggregate_id` = `users_domain_snapshot`.`aggregate_id`)       as `sum`,
-       exists(select `id`
-              from `ddd_test`.`users_domain_events`
-              where `users_domain_events`.`aggregate_id` = `users_domain_snapshot`.`aggregate_id`) as `x`
-FROM `ddd_test`.`users_domain_snapshot`
-where `id` = ?;
+-- name: business_code_delete_by_code
+DELETE
+FROM `applications`.`business_code`
+WHERE `group` = ?
+  AND `code`;
 
--- name: users_domain_events_list_v2
-SELECT e.id, s.aggregate_id as `snapshot_aggregate_id`, e.aggregate_id as `event_aggregate_id`
-FROM ddd_test.users_domain_events as e
-         left join ddd_test.users_domain_snapshot as s on s.aggregate_id = e.aggregate_id
-         left join ddd_test.users_domain_snapshot as s1 on s1.aggregate_id = e.aggregate_id
-where e.id = ? and s.aggregate_id = ?;
+-- name: business_code_list_by_group
+SELECT `business_code`.`id`,
+       `business_code`.`create_by`,
+       `business_code`.`create_at`,
+       `business_code`.`modify_by`,
+       `business_code`.`modify_at`,
+       `business_code`.`delete_by`,
+       `business_code`.`delete_at`,
+       `business_code`.`version`,
+       `business_code`.`code`,
+       `business_code`.`group`,
+       `business_code`.`description`,
+       `business_code`.`text_code`
+FROM `applications`.`business_code`
+WHERE `group` = ?
+ORDER BY `code`
+LIMIT ? OFFSET ?;
 
--- name: users_domain_events_insert
-INSERT INTO `ddd_test`.`users_domain_events`
-(`id`,
- `aggregate_name`,
- `aggregate_id`,
- `event_name`,
- `event_id`,
- `event_time`,
- `event_data`)
-VALUES
-(?,?,?,?,?,now(),'');
+-- name: business_group_get_by_code
+SELECT `business_group`.`id`,
+       `business_group`.`create_by`,
+       `business_group`.`create_at`,
+       `business_group`.`modify_by`,
+       `business_group`.`modify_at`,
+       `business_group`.`delete_by`,
+       `business_group`.`delete_at`,
+       `business_group`.`version`,
+       `business_group`.`code`,
+       `business_group`.`name`,
+       `business_group`.`description`
+FROM `applications`.`business_group`
+WHERE `code` = ?;
 
--- name: users_domain_events_update
-UPDATE `ddd_test`.`users_domain_events`
-SET
-    `aggregate_name` = ?,
-    `aggregate_id` = ?,
-    `event_name` = '1',
-    `event_id` = ?,
-    `event_time` = now(),
-    `event_data` = null
-WHERE `id` = ?;
+-- name: business_group_delete_by_code
+DELETE
+FROM `applications`.`business_group`
+WHERE `code` = ?;
 
--- name: users_domain_events_delete
-DELETE FROM `ddd_test`.`users_domain_events` WHERE `id` = ?;
+-- name: business_group_list
+SELECT `business_group`.`id`,
+       `business_group`.`create_by`,
+       `business_group`.`create_at`,
+       `business_group`.`modify_by`,
+       `business_group`.`modify_at`,
+       `business_group`.`delete_by`,
+       `business_group`.`delete_at`,
+       `business_group`.`version`,
+       `business_group`.`code`,
+       `business_group`.`name`,
+       `business_group`.`description`
+FROM `applications`.`business_group`
+ORDER BY `code`
+LIMIT ? OFFSET ?;
