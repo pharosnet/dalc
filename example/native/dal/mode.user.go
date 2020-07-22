@@ -3,7 +3,7 @@ package dal
 import (
 	"context"
 	"database/sql"
-	"github.com/pharosnet/dalc"
+	"github.com/pharosnet/dalc/v2"
 	"time"
 )
 
