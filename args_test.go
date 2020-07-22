@@ -1,7 +1,7 @@
 package dalc_test
 
 import (
-	"github.com/pharosnet/dalc"
+	"github.com/pharosnet/dalc/v2"
 	"testing"
 )
 
