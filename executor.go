@@ -30,7 +30,7 @@ func Execute(ctx PreparedContext, query string, args *Args) (affected int64, err
 			return
 		}
 	}()
-	result, execErr := stmt.ExecContext(ctx, args.values)
+	result, execErr := stmt.ExecContext(ctx, args.Values()...)
 	if execErr != nil {
 		err = execErr
 		return
@@ -76,7 +76,7 @@ func ExecuteReturnInsertId(ctx PreparedContext, query string, args *Args) (inser
 			return
 		}
 	}()
-	result, execErr := stmt.ExecContext(ctx, args.values)
+	result, execErr := stmt.ExecContext(ctx, args.Values()...)
 	if execErr != nil {
 		err = execErr
 		return
