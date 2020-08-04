@@ -371,9 +371,9 @@ func parseMySQLTable(lines *commons.Lines) (table *entry.Table, err error) {
 
 		// pk
 		if strings.Index(lineUpper, "PRIMARY KEY ") >= 0 {
-			leftBracketIndex := strings.Index(lineUpper, "(")
-			rightBracketIndex := strings.Index(lineUpper, ")")
-			pkLine := strings.ReplaceAll(lineUpper[leftBracketIndex+1:rightBracketIndex], "`", "")
+			leftBracketIndex := strings.Index(line, "(")
+			rightBracketIndex := strings.Index(line, ")")
+			pkLine := strings.ReplaceAll(line[leftBracketIndex+1:rightBracketIndex], "`", "")
 			pks := strings.Split(pkLine, ",")
 			for _, pk := range pks {
 				table.PKs = append(table.PKs, strings.TrimSpace(pk))

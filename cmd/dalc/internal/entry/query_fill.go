@@ -1,13 +1,16 @@
 package entry
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func QueryFill(tables []*Table, queries0 []*Query) (queries []*Query, err error) {
 	for _, query := range queries0 {
 
 		for _, queryTable := range query.TableList {
 			for _, table := range tables {
-				if queryTable.Schema == table.Schema && queryTable.Table == table.Name {
+				if strings.ToLower(queryTable.Schema) == strings.ToLower(table.Schema) && strings.ToLower(queryTable.Table) == strings.ToLower(table.Name) {
 					queryTable.Ref = table
 				}
 			}
@@ -27,9 +30,9 @@ func QueryFill(tables []*Table, queries0 []*Query) (queries []*Query, err error)
 				if got {
 					break
 				}
-				if expr.Table.Schema == table.Schema && expr.Table.Table == table.Name {
+				if strings.ToLower(expr.Table.Schema) == strings.ToLower(table.Schema) && strings.ToLower(expr.Table.Table) == strings.ToLower(table.Name) {
 					for _, column := range table.Columns {
-						if column.Name == expr.ColumnName {
+						if strings.ToLower(column.Name) == strings.ToLower(expr.ColumnName) {
 							expr.GoType = column.GoType
 							got = true
 							break
@@ -56,9 +59,9 @@ func QueryFill(tables []*Table, queries0 []*Query) (queries []*Query, err error)
 				if got {
 					break
 				}
-				if expr.Table.Schema == table.Schema && expr.Table.Table == table.Name {
+				if strings.ToLower(expr.Table.Schema) == strings.ToLower(table.Schema) && strings.ToLower(expr.Table.Table) == strings.ToLower(table.Name) {
 					for _, column := range table.Columns {
-						if column.Name == expr.ColumnName {
+						if strings.ToLower(column.Name) == strings.ToLower(expr.ColumnName) {
 							expr.GoType = column.GoType
 							got = true
 							break
