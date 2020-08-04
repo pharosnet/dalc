@@ -103,7 +103,7 @@ func buildTableGetSQL(table *entry.Table) (q string) {
 		if i > 0 {
 			buf.WriteString(", ")
 		}
-		buf.WriteString(fmt.Sprintf("`%s`", strings.ToUpper(column.Name)))
+		buf.WriteString(fmt.Sprintf("`%s`", column.Name))
 	}
 	buf.WriteString("FROM ")
 	if table.Schema != "" {
@@ -116,7 +116,7 @@ func buildTableGetSQL(table *entry.Table) (q string) {
 		if i > 0 {
 			buf.WriteString(" AND ")
 		}
-		buf.WriteString(fmt.Sprintf("`%s` = ?", strings.ToUpper(pk)))
+		buf.WriteString(fmt.Sprintf("`%s` = ?", pk))
 	}
 
 	q = buf.String()
@@ -141,7 +141,7 @@ func buildTableInsertSQL(table *entry.Table) (q string) {
 		if x > 0 {
 			buf.WriteString(", ")
 		}
-		buf.WriteString(fmt.Sprintf("`%s`", strings.ToUpper(column.Name)))
+		buf.WriteString(fmt.Sprintf("`%s`", column.Name))
 		x++
 	}
 	buf.WriteString(") VALUES ( ")
@@ -188,7 +188,7 @@ func buildTableUpdateSQL(table *entry.Table) (q string) {
 		if x > 0 {
 			buf.WriteString(", ")
 		}
-		buf.WriteString(fmt.Sprintf("`%s` = ?", strings.ToUpper(column.Name)))
+		buf.WriteString(fmt.Sprintf("`%s` = ?", column.Name))
 		x++
 	}
 	buf.WriteString(" WHERE ")
@@ -196,7 +196,7 @@ func buildTableUpdateSQL(table *entry.Table) (q string) {
 		if i > 0 {
 			buf.WriteString(" AND ")
 		}
-		buf.WriteString(fmt.Sprintf("`%s` = ?", strings.ToUpper(pk)))
+		buf.WriteString(fmt.Sprintf("`%s` = ?", pk))
 	}
 
 	q = buf.String()
@@ -217,7 +217,7 @@ func buildTableDeleteSQL(table *entry.Table) (q string) {
 		if i > 0 {
 			buf.WriteString(" AND ")
 		}
-		buf.WriteString(fmt.Sprintf("`%s` = ?", strings.ToUpper(pk)))
+		buf.WriteString(fmt.Sprintf("`%s` = ?", pk))
 	}
 
 	q = buf.String()

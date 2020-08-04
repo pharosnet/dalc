@@ -2,8 +2,12 @@ package commons
 
 import "strings"
 
-func NormalizeName(name string) string {
+func NormalizeNameAndUpper(name string) string {
 	return strings.ToUpper(strings.ReplaceAll(name, "`", ""))
+}
+
+func NormalizeName(name string) string {
+	return strings.ReplaceAll(name, "`", "")
 }
 
 func SplitFullName(fullName string) (name1 string, name2 string) {
