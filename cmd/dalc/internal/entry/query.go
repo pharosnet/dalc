@@ -2,8 +2,9 @@ package entry
 
 import (
 	"fmt"
-	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/parser/commons"
 	"strings"
+
+	"github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/parser/commons"
 )
 
 const (
