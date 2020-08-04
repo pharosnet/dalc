@@ -107,7 +107,7 @@ tx.Commit()
 ```
 ## Code Generates
 ### Install dalc 
-`go get -u github.com/pharosnet/dalc/v2/cmd/dalc/v2`
+`go get -u github.com/pharosnet/dalc/cmd/dalc/v2`
 ### Write sql schema files
 Write sql schema files in some folder, such as schema/, and foo.sql in this folder.
 ```sql
