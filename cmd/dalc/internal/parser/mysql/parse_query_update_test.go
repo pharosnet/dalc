@@ -1,7 +1,7 @@
 package mysql_test
 
 import (
-	"github.com/pharosnet/dalc/cmd/dalc/v2/internal/parser/mysql"
+	"github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/parser/mysql"
 	"io/ioutil"
 	"os"
 	"path/filepath"
