@@ -3,8 +3,8 @@ package generates
 import (
 	"bytes"
 	"fmt"
-	"github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/entry"
-	"github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/parser/commons"
+	"github.com/pharosnet/dalc/v2/cmd/dalc/internal/entry"
+	"github.com/pharosnet/dalc/v2/cmd/dalc/internal/parser/commons"
 	"strings"
 	"text/template"
 )
