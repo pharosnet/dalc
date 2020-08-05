@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/entry"
+	"github.com/pharosnet/dalc/v2/cmd/dalc/internal/entry"
 	"github.com/vitessio/vitess/go/vt/sqlparser"
 )
 

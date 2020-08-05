@@ -1,6 +1,6 @@
 package generates
 
-import "github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/entry"
+import "github.com/pharosnet/dalc/v2/cmd/dalc/internal/entry"
 
 type TemplateData struct {
 	Package string

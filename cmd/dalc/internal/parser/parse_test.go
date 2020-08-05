@@ -1,7 +1,7 @@
 package parser_test
 
 import (
-	"github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/parser"
+	"github.com/pharosnet/dalc/v2/cmd/dalc/internal/parser"
 	"os"
 	"path/filepath"
 	"testing"

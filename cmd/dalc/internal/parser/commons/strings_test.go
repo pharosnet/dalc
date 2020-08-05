@@ -1,7 +1,7 @@
 package commons_test
 
 import (
-	"github.com/pharosnet/dalc/v2/cmd/dalc/v2/internal/parser/commons"
+	"github.com/pharosnet/dalc/v2/cmd/dalc/internal/parser/commons"
 	"testing"
 )
 
