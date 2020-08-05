@@ -106,8 +106,8 @@ _, err := UserUpdateName(ctx, &UserUpdateNameRequest{Id: 1, JoinTime: time.Now()
 tx.Commit()
 ```
 ## Code Generates
-### Install dalc 
-`go get -u github.com/pharosnet/dalc/v2/cmd/dalc`
+### Install dalg
+`go get -u github.com/pharosnet/dalg`
 ### Write sql schema files
 Write sql schema files in some folder, such as schema/, and foo.sql in this folder.
 ```sql
